@@ -1,0 +1,6 @@
+@EventHub.NotificationService_HostAddress = http://localhost:5008
+
+GET {{EventHub.NotificationService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

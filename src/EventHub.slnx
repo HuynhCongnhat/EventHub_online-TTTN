@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="EventHub.ApiGateway/EventHub.ApiGateway.csproj" />
+  <Project Path="EventHub.AuthService/EventHub.AuthService.csproj" />
+  <Project Path="EventHub.BookingService/EventHub.BookingService.csproj" />
+  <Project Path="EventHub.Contracts/EventHub.Contracts.csproj" />
+  <Project Path="EventHub.EventService/EventHub.EventService.csproj" />
+  <Project Path="EventHub.NotificationService/EventHub.NotificationService.csproj" />
+  <Project Path="EventHub.PaymentService/EventHub.PaymentService.csproj" />
+  <Project Path="EventHub.Web/EventHub.Web.csproj" />
+</Solution>

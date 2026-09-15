@@ -1,0 +1,36 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build
+bin/
+obj/
+
+# Test results
+TestResults/
+
+# NuGet
+packages/
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# User secrets
+appsettings.Development.json
+
+# Environment
+.env
+
+# Docker
+docker-data/
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+.DS_Store

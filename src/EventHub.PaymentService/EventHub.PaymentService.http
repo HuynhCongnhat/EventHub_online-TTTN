@@ -1,0 +1,6 @@
+@EventHub.PaymentService_HostAddress = http://localhost:5245
+
+GET {{EventHub.PaymentService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
