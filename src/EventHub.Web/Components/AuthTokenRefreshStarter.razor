@@ -1,0 +1,14 @@
+﻿@using EventHub.Web.Services
+@inject AuthTokenRefreshService RefreshService
+
+@rendermode InteractiveServer
+
+@code {
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            RefreshService.Start();
+        }
+    }
+}
