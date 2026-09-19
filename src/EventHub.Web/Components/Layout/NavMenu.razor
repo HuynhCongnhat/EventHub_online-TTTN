@@ -1,30 +1,206 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">EventHub.Web</a>
+﻿@using EventHub.Web.Services
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject CustomAuthenticationStateProvider CustomAuthStateProvider
+
+<nav class="eventhub-navigation">
+
+    <!-- =====================================================
+         MOBILE MENU BUTTON
+         ===================================================== -->
+
+    <button type="button"
+            class="eventhub-mobile-menu-button"
+            aria-label="Mở menu"
+            @onclick="ToggleMenu">
+
+        <span>☰</span>
+
+    </button>
+
+
+    <!-- =====================================================
+         NAVIGATION MENU
+         ===================================================== -->
+
+    <div class="eventhub-navigation-menu @(isMenuOpen ? "menu-open" : "")">
+
+        <!-- =================================================
+             TRANG CHỦ
+             ================================================= -->
+
+        <NavLink href="/"
+                 Match="NavLinkMatch.All"
+                 class="eventhub-nav-link"
+                 @onclick="CloseMenu">
+
+            <span class="nav-icon">
+                🏠
+            </span>
+
+            <span class="nav-text">
+                Trang chủ
+            </span>
+
+        </NavLink>
+
+
+        <!-- =================================================
+             SỰ KIỆN
+             ================================================= -->
+
+        <NavLink href="/events"
+                 class="eventhub-nav-link"
+                 @onclick="CloseMenu">
+
+            <span class="nav-icon">
+                🎫
+            </span>
+
+            <span class="nav-text">
+                Sự kiện
+            </span>
+
+        </NavLink>
+
+
+        <!-- =================================================
+             CÁC CHỨC NĂNG SAU KHI ĐĂNG NHẬP
+             ================================================= -->
+
+        <AuthorizeView>
+
+            <!--
+                Đặt tên Context riêng để không bị
+                trùng với AuthorizeView bên trong.
+            -->
+
+            <Authorized Context="userContext">
+
+                <!-- =========================================
+                     VÉ CỦA TÔI
+                     ========================================= -->
+
+                <NavLink href="/my-tickets"
+                         class="eventhub-nav-link"
+                         @onclick="CloseMenu">
+
+                    <span class="nav-icon">
+                        🎟️
+                    </span>
+
+                    <span class="nav-text">
+                        Vé của tôi
+                    </span>
+
+                </NavLink>
+
+
+                <!-- =========================================
+                     LỊCH SỬ ĐẶT VÉ
+                     ========================================= -->
+
+                <NavLink href="/booking-history"
+                         class="eventhub-nav-link"
+                         @onclick="CloseMenu">
+
+                    <span class="nav-icon">
+                        📋
+                    </span>
+
+                    <span class="nav-text">
+                        Lịch sử
+                    </span>
+
+                </NavLink>
+
+
+                <!-- =========================================
+                     YÊU THÍCH
+                     ========================================= -->
+
+                <NavLink href="/favorites"
+                         class="eventhub-nav-link"
+                         @onclick="CloseMenu">
+
+                    <span class="nav-icon">
+                        ❤️
+                    </span>
+
+                    <span class="nav-text">
+                        Yêu thích
+                    </span>
+
+                </NavLink>
+
+
+                <!-- =========================================
+                     ADMIN
+                     ========================================= -->
+
+                <AuthorizeView Roles="Admin"
+                               Context="adminContext">
+
+                    <NavLink href="/admin"
+                             class="eventhub-nav-link eventhub-admin-link"
+                             @onclick="CloseMenu">
+
+                        <span class="nav-icon">
+                            ⚙️
+                        </span>
+
+                        <span class="nav-text">
+                            Quản trị
+                        </span>
+
+                    </NavLink>
+
+                </AuthorizeView>
+
+            </Authorized>
+
+        </AuthorizeView>
+
     </div>
-</div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+</nav>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
+@code {
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
+    private bool isMenuOpen = false;
 
+
+    /* =====================================================
+       MỞ / ĐÓNG MOBILE MENU
+       ===================================================== */
+
+    private void ToggleMenu()
+    {
+        isMenuOpen = !isMenuOpen;
+    }
+
+
+    /* =====================================================
+       ĐÓNG MENU SAU KHI CHỌN LINK
+       ===================================================== */
+
+    private void CloseMenu()
+    {
+        isMenuOpen = false;
+    }
+
+
+    /* =====================================================
+       KHỞI TẠO AUTHENTICATION STATE
+       ===================================================== */
+
+    protected override async Task OnAfterRenderAsync(
+        bool firstRender)
+    {
+        if (firstRender)
+        {
+            await CustomAuthStateProvider.InitializeAsync();
+        }
+    }
+}
