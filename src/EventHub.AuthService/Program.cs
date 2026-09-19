@@ -57,6 +57,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddControllers();
 
+builder.Services.AddScoped<EventHub.AuthService.Services.EmailService>();
+
 
 // Swagger
 

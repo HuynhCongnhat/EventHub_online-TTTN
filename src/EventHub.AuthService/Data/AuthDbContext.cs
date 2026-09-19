@@ -15,6 +15,10 @@ namespace EventHub.AuthService.Data
 
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
+        public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
+
+        public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -82,6 +86,55 @@ namespace EventHub.AuthService.Data
                 entity.HasOne(r => r.User)
                     .WithMany(u => u.RefreshTokens)
                     .HasForeignKey(r => r.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<PasswordResetToken>(entity =>
+            {
+                entity.HasKey(r => r.Id);
+
+                entity.Property(r => r.TokenHash)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.HasIndex(r => r.TokenHash)
+                    .IsUnique();
+
+                entity.Property(r => r.ExpiresAt)
+                    .IsRequired();
+
+                entity.Property(r => r.IsUsed)
+                    .IsRequired();
+
+                entity.Property(r => r.CreatedAt)
+                    .IsRequired();
+
+                entity.HasOne(r => r.User)
+                    .WithMany()
+                    .HasForeignKey(r => r.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<EmailVerificationToken>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Code)
+                    .IsRequired()
+                    .HasMaxLength(6);
+
+                entity.Property(e => e.ExpiresAt)
+                    .IsRequired();
+
+                entity.Property(e => e.IsUsed)
+                    .IsRequired();
+
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired();
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
