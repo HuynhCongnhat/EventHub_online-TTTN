@@ -1,0 +1,78 @@
+﻿.email-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    padding: 13px 16px;
+    background: #fff5f5;
+    border: 1px solid #f3dada;
+    border-radius: 12px;
+    color: #8d5555;
+    font-size: 14px;
+    word-break: break-word;
+}
+
+.verification-input {
+    text-align: center;
+    font-size: 24px !important;
+    font-weight: 600;
+    letter-spacing: 8px;
+}
+
+.resend-section {
+    margin-top: 22px;
+    text-align: center;
+}
+
+    .resend-section p {
+        margin-bottom: 8px;
+        color: #888;
+        font-size: 14px;
+    }
+
+.btn-resend {
+    border: none;
+    background: transparent;
+    color: #e87575;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .btn-resend:hover {
+        color: #d85d5d;
+        text-decoration: underline;
+    }
+
+    .btn-resend:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+.auth-links {
+    margin-top: 24px;
+    text-align: center;
+}
+
+    .auth-links a {
+        color: #df7070;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+@media (max-width: 576px) {
+
+    .verification-input {
+        font-size: 21px !important;
+        letter-spacing: 6px;
+    }
+
+    .email-display {
+        font-size: 13px;
+    }
+}

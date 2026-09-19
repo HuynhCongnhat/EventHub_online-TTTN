@@ -1,0 +1,190 @@
+﻿@page "/register"
+@rendermode InteractiveServer
+
+@using EventHub.Web.Models.Auth
+@using EventHub.Web.Services
+@inject AuthApiService AuthApi
+@inject NavigationManager Navigation
+
+<PageTitle>Đăng ký - EventHub</PageTitle>
+
+<div class="auth-page">
+    <div class="auth-card">
+
+        <div class="auth-header">
+            <div class="logo">EventHub</div>
+
+            <h1>Đăng ký</h1>
+
+            <p>Tạo tài khoản để sử dụng EventHub</p>
+        </div>
+
+        <EditForm Model="@registerModel"
+                  OnValidSubmit="@HandleRegister"
+                  FormName="RegisterForm">
+
+            <DataAnnotationsValidator />
+
+            <!-- Họ và tên -->
+            <div class="form-group">
+                <label for="fullName">Họ và tên</label>
+
+                <InputText id="fullName"
+                           class="form-control"
+                           @bind-Value="registerModel.FullName"
+                           placeholder="Nhập họ và tên" />
+
+                <ValidationMessage For="@(() => registerModel.FullName)" />
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email">Email</label>
+
+                <InputText id="email"
+                           class="form-control"
+                           @bind-Value="registerModel.Email"
+                           placeholder="Nhập email" />
+
+                <ValidationMessage For="@(() => registerModel.Email)" />
+            </div>
+
+            <!-- Mật khẩu -->
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+
+                <InputText id="password"
+                           type="password"
+                           class="form-control"
+                           @bind-Value="registerModel.Password"
+                           placeholder="Nhập mật khẩu" />
+
+                <ValidationMessage For="@(() => registerModel.Password)" />
+            </div>
+
+            <!-- Xác nhận mật khẩu -->
+            <div class="form-group">
+                <label for="confirmPassword">Xác nhận mật khẩu</label>
+
+                <InputText id="confirmPassword"
+                           type="password"
+                           class="form-control"
+                           @bind-Value="registerModel.ConfirmPassword"
+                           placeholder="Nhập lại mật khẩu" />
+
+                <ValidationMessage For="@(() => registerModel.ConfirmPassword)" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">
+                    @errorMessage
+                </div>
+            }
+
+            @if (!string.IsNullOrEmpty(successMessage))
+            {
+                <div class="alert alert-success">
+                    @successMessage
+                </div>
+            }
+
+            <button type="submit"
+                    class="btn-register"
+                    disabled="@isLoading">
+
+                @if (isLoading)
+                {
+                    <span>Đang đăng ký...</span>
+                }
+                else
+                {
+                    <span>Đăng ký</span>
+                }
+
+            </button>
+
+        </EditForm>
+
+        <div class="auth-links">
+
+            <div>
+                Đã có tài khoản?
+                <a href="/login">Đăng nhập</a>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@code {
+
+    private RegisterModel registerModel = new();
+
+    private bool isLoading;
+
+    private string? errorMessage;
+
+    private string? successMessage;
+
+    private async Task HandleRegister()
+    {
+        isLoading = true;
+        errorMessage = null;
+        successMessage = null;
+
+        var request = new RegisterRequest
+        {
+            FullName = registerModel.FullName,
+            Email = registerModel.Email,
+            Password = registerModel.Password
+        };
+
+        var result = await AuthApi.RegisterAsync(request);
+
+        if (result.Success)
+        {
+            successMessage = "Đăng ký thành công! Mã xác thực đã được gửi đến email.";
+
+			await Task.Delay(1000);
+
+			Navigation.NavigateTo($"/verify-email?email={Uri.EscapeDataString(registerModel.Email.Trim())}");
+        }
+        else
+        {
+            errorMessage = result.Message;
+        }
+
+        isLoading = false;
+    }
+
+    public class RegisterModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(
+            ErrorMessage = "Vui lòng nhập họ và tên.")]
+        [System.ComponentModel.DataAnnotations.StringLength(
+            150,
+            MinimumLength = 2,
+            ErrorMessage = "Họ và tên phải từ 2 đến 150 ký tự.")]
+        public string FullName { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(
+            ErrorMessage = "Vui lòng nhập email.")]
+        [System.ComponentModel.DataAnnotations.EmailAddress(
+            ErrorMessage = "Email không hợp lệ.")]
+        public string Email { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(
+            ErrorMessage = "Vui lòng nhập mật khẩu.")]
+        [System.ComponentModel.DataAnnotations.MinLength(
+            6,
+            ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự.")]
+        public string Password { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required(
+            ErrorMessage = "Vui lòng xác nhận mật khẩu.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+
+}
