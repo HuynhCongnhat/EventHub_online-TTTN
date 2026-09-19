@@ -1,98 +1,1057 @@
-.page {
-    position: relative;
+/* =========================================================
+   EVENTHUB - MAIN LAYOUT
+   Soft Red / Pastel / Youthful / Modern
+   ========================================================= */
+
+
+/* =========================================================
+   ROOT LAYOUT
+   ========================================================= */
+
+.eventhub-layout {
+    min-height: 100vh;
+    width: 100%;
     display: flex;
     flex-direction: column;
+    background: radial-gradient( circle at 90% 0%, rgba(255, 145, 145, 0.12), transparent 30% ), #fff9f9;
+    color: #3d3030;
 }
 
-main {
-    flex: 1;
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.eventhub-header {
+    width: 100%;
+    height: 72px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 1px solid #f4dada;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 3px 18px rgba(210, 95, 95, 0.06);
 }
 
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
-}
 
-.top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
+/* =========================================================
+   HEADER CONTAINER
+   ========================================================= */
+
+.eventhub-header-container {
+    position: relative;
+    width: 100%;
+    max-width: 1500px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 28px;
     display: flex;
     align-items: center;
 }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        white-space: nowrap;
-        margin-left: 1.5rem;
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.eventhub-logo-section {
+    flex-shrink: 0;
+}
+
+
+.eventhub-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #3d3030;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+
+    .eventhub-logo:hover {
+        color: #3d3030;
+        transform: translateY(-1px);
+        opacity: 0.92;
+    }
+
+
+/* Logo icon */
+
+.eventhub-logo-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    background: linear-gradient( 135deg, #ff9b9b, #f06f6f );
+    box-shadow: 0 7px 18px rgba(225, 92, 92, 0.20);
+    font-size: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+.eventhub-logo:hover .eventhub-logo-icon {
+    transform: rotate(-4deg) scale(1.04);
+    box-shadow: 0 9px 22px rgba(225, 92, 92, 0.25);
+}
+
+
+/* Logo text */
+
+.eventhub-logo-text {
+    font-size: 1.35rem;
+    font-weight: 750;
+    letter-spacing: -0.5px;
+    color: #3d3030;
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+.eventhub-navigation {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin-left: 28px;
+}
+
+
+/* Navigation item */
+
+::deep .eventhub-nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 42px;
+    padding: 8px 14px;
+    border-radius: 11px;
+    color: #725e5e;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 550;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+    /* Hover */
+
+    ::deep .eventhub-nav-link:hover {
+        color: #d95757;
+        background: #fff1f1;
+        transform: translateY(-1px);
+    }
+
+
+    /* Active */
+
+    ::deep .eventhub-nav-link.active {
+        color: #d95757;
+        background: linear-gradient( 135deg, #fff0f0, #ffe7e7 );
+        box-shadow: inset 0 0 0 1px #f6d2d2;
+    }
+
+
+/* =========================================================
+   HEADER ACTIONS
+   ========================================================= */
+
+.eventhub-header-actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
+}
+
+
+/* =========================================================
+   LOGIN / REGISTER
+   ========================================================= */
+
+.eventhub-auth-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+
+/* Common button */
+
+::deep .eventhub-login-button,
+::deep .eventhub-register-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 42px;
+    padding: 8px 14px;
+    border-radius: 11px;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+
+/* Login */
+
+::deep .eventhub-login-button {
+    color: #d95757;
+    background: #fff0f0;
+    border: 1px solid #f5d1d1;
+}
+
+
+    ::deep .eventhub-login-button:hover {
+        color: #c74646;
+        background: #ffe7e7;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 14px rgba(210, 80, 80, 0.10);
+    }
+
+
+/* Register */
+
+::deep .eventhub-register-button {
+    color: white;
+    background: linear-gradient( 135deg, #ff9696, #eb6d6d );
+    border: 1px solid transparent;
+    box-shadow: 0 6px 15px rgba(218, 91, 91, 0.16);
+}
+
+
+    ::deep .eventhub-register-button:hover {
+        color: white;
+        background: linear-gradient( 135deg, #ff8585, #df5d5d );
+        transform: translateY(-2px);
+        box-shadow: 0 9px 20px rgba(218, 91, 91, 0.22);
+    }
+
+
+/* =========================================================
+   USER MENU
+   ========================================================= */
+
+.eventhub-user-menu {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 5px 10px 5px 5px;
+    border-radius: 14px;
+    background: #fff4f4;
+    border: 1px solid #f4d8d8;
+    cursor: pointer;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* =========================================================
+   USER DROPDOWN
+   ========================================================= */
+
+.eventhub-user-dropdown {
+    position: relative;
+}
+
+.eventhub-user-menu {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 4px 10px 4px 5px;
+    border: 1px solid #f2d6d6;
+    border-radius: 14px;
+    background: #fff3f3;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .eventhub-user-menu:hover {
+        background: #ffebeb;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(210, 85, 85, 0.10);
+    }
+
+.eventhub-user-avatar {
+    width: 37px;
+    height: 37px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #ffd7d7, #ffc0c0);
+    font-size: 17px;
+}
+
+.eventhub-user-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.2;
+}
+
+.eventhub-user-greeting {
+    color: #987b7b;
+    font-size: 0.68rem;
+}
+
+.eventhub-user-info strong {
+    display: block;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #4b3838;
+    font-size: 0.85rem;
+    font-weight: 650;
+}
+
+.eventhub-user-arrow {
+    margin-left: 2px;
+    color: #b17b7b;
+    font-size: 14px;
+    transition: transform 0.2s ease;
+}
+
+    .eventhub-user-arrow.arrow-open {
+        transform: rotate(180deg);
+    }
+
+
+
+/* =========================================================
+   USER BUTTON
+   ========================================================= */
+
+.eventhub-user-menu {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 4px 10px 4px 5px;
+    border-radius: 14px;
+    background: #fff3f3;
+    border: 1px solid #f2d6d6;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .eventhub-user-menu:hover {
+        background: #ffebeb;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(210, 85, 85, 0.10);
+    }
+
+
+/* =========================================================
+   USER AVATAR
+   ========================================================= */
+
+.eventhub-user-avatar {
+    width: 37px;
+    height: 37px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: linear-gradient( 135deg, #ffd7d7, #ffc0c0 );
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   USER INFO
+   ========================================================= */
+
+.eventhub-user-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.2;
+    text-align: left;
+}
+
+.eventhub-user-greeting {
+    color: #987b7b;
+    font-size: 0.68rem;
+}
+
+.eventhub-user-info strong {
+    display: block;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #4b3838;
+    font-size: 0.85rem;
+    font-weight: 650;
+}
+
+
+/* =========================================================
+   ARROW
+   ========================================================= */
+
+.eventhub-user-arrow {
+    margin-left: 2px;
+    color: #b17b7b;
+    font-size: 14px;
+    transition: transform 0.2s ease;
+}
+
+    .eventhub-user-arrow.arrow-open {
+        transform: rotate(180deg);
+    }
+
+/* =========================================================
+   DROPDOWN CONTAINER
+   ========================================================= */
+
+.eventhub-user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 9px);
+    right: 0;
+    z-index: 3000;
+    width: 220px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    background: #ffffff;
+    border: 1px solid #f1d4d4;
+    border-radius: 15px;
+    box-shadow: 0 12px 35px rgba(190, 80, 80, 0.16);
+    animation: userDropdownAppear 0.18s ease;
+}
+
+
+
+/* =========================================================
+   DROPDOWN MENU
+   ========================================================= */
+
+.eventhub-user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 9px);
+    right: 0;
+    z-index: 3000;
+    width: 220px;
+    padding: 7px;
+    border: 1px solid #f2d5d5;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 14px 35px rgba(190, 80, 80, 0.15);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    animation: userDropdownAppear 0.18s ease;
+}
+
+
+/* =========================================================
+   DROPDOWN ANIMATION
+   ========================================================= */
+
+@keyframes userDropdownAppear {
+
+    from {
+        opacity: 0;
+        transform: translateY(-5px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================================
+   DROPDOWN ITEM
+   ========================================================= */
+
+.eventhub-dropdown-item {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: #5c4545;
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-decoration: none;
+    text-align: left;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+    .eventhub-dropdown-item:hover {
+        background: #fff1f1;
+        color: #d95757;
+        text-decoration: none;
+        transform: translateX(2px);
+    }
+
+
+/* =========================================================
+   DROPDOWN ICON
+   ========================================================= */
+
+.eventhub-dropdown-icon {
+    width: 24px;
+    min-width: 24px;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+}
+
+/* Text */
+
+.eventhub-dropdown-item span:not(.eventhub-dropdown-icon) {
+    display: inline-block;
+    flex: 1;
+    color: inherit;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   DIVIDER
+   ========================================================= */
+
+.eventhub-dropdown-divider {
+    width: 100%;
+    height: 1px;
+    margin: 6px 0;
+    background: #f3dddd;
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+.eventhub-logout-item {
+    color: #d95757;
+}
+
+    .eventhub-logout-item:hover {
+        background: #fff0f0;
+        color: #c74646;
+    }
+
+/* =========================================================
+   ANIMATION
+   ========================================================= */
+
+@keyframes userDropdownAppear {
+
+    from {
+        opacity: 0;
+        transform: translateY(-5px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.eventhub-main {
+    flex: 1;
+    width: 100%;
+    background: radial-gradient( circle at 90% 10%, rgba(244, 124, 124, 0.08), transparent 32% ), #fff9f9;
+}
+
+
+/* Content */
+
+.eventhub-content {
+    width: 100%;
+    max-width: 1500px;
+    min-height: calc(100vh - 72px - 70px);
+    margin: 0 auto;
+    padding: 30px 28px 40px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.eventhub-footer {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.88);
+    border-top: 1px solid #f3dada;
+    color: #806c6c;
+}
+
+
+/* Footer container */
+
+.eventhub-footer-container {
+    width: 100%;
+    max-width: 1500px;
+    min-height: 70px;
+    margin: 0 auto;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+
+/* Footer brand */
+
+.eventhub-footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    white-space: nowrap;
+}
+
+
+    .eventhub-footer-brand strong {
+        color: #d95757;
+        font-size: 0.9rem;
+    }
+
+
+    .eventhub-footer-brand span {
+        color: #987f7f;
+        font-size: 0.78rem;
+    }
+
+
+/* Footer links */
+
+.eventhub-footer-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+
+    .eventhub-footer-links a {
+        color: #856f6f;
+        text-decoration: none;
+        font-size: 0.78rem;
+        transition: color 0.2s ease;
+    }
+
+
+        .eventhub-footer-links a:hover {
+            color: #d95757;
+        }
+
+
+/* Copyright */
+
+.eventhub-footer-copy {
+    color: #a28c8c;
+    font-size: 0.76rem;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   BLAZOR ERROR UI
+   ========================================================= */
+
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    left: 20px;
+    right: 20px;
+    bottom: 20px;
+    z-index: 9999;
+    background: #fff0f0;
+    border: 1px solid #efc1c1;
+    border-radius: 14px;
+    box-shadow: 0 12px 35px rgba(190, 80, 80, 0.18);
+    color: #704747;
+}
+
+
+    #blazor-error-ui .error-content {
+        min-height: 55px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+    }
+
+
+    #blazor-error-ui .reload {
+        margin-left: auto;
+        color: #d95757;
+        font-weight: 600;
         text-decoration: none;
     }
 
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
-    }
 
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+        #blazor-error-ui .reload:hover {
+            color: #b94343;
+        }
 
-@media (max-width: 640.98px) {
-    .top-row {
-        justify-content: space-between;
-    }
-
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        margin-left: 0;
-    }
-}
-
-@media (min-width: 641px) {
-    .page {
-        flex-direction: row;
-    }
-
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
-    }
-
-    .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-
-    .top-row.auth ::deep a:first-child {
-        flex: 1;
-        text-align: right;
-        width: 0;
-    }
-
-    .top-row, article {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
-    }
-}
-
-#blazor-error-ui {
-    color-scheme: light only;
-    background: lightyellow;
-    bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
-    display: none;
-    left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
-}
 
     #blazor-error-ui .dismiss {
+        border: none;
+        background: transparent;
+        color: #a16f6f;
         cursor: pointer;
-        position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
+        font-size: 16px;
+        padding: 5px;
     }
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+    .eventhub-header-container {
+        padding: 0 20px;
+    }
+
+
+    .eventhub-navigation {
+        margin-left: 15px;
+        gap: 2px;
+    }
+
+
+    ::deep .eventhub-nav-link {
+        padding: 8px 10px;
+        font-size: 0.84rem;
+    }
+
+
+    .eventhub-header-actions {
+        margin-left: 12px;
+    }
+
+
+    .eventhub-user-info {
+        display: none;
+    }
+
+
+    .eventhub-user-menu {
+        padding-right: 6px;
+    }
+
+
+    .eventhub-content {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+
+    .eventhub-footer-container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .eventhub-header {
+        height: auto;
+        min-height: 64px;
+        position: relative;
+    }
+
+
+    .eventhub-header-container {
+        min-height: 64px;
+        padding: 10px 14px;
+        flex-wrap: wrap;
+    }
+
+    .eventhub-user-dropdown-menu {
+        position: fixed;
+        top: 70px;
+        right: 10px;
+        width: 210px;
+        padding: 7px;
+        border-radius: 13px;
+    }
+
+    .eventhub-dropdown-item {
+        min-height: 43px;
+        padding: 9px 11px;
+    }
+
+    /* Logo */
+
+    .eventhub-logo-text {
+        font-size: 1.15rem;
+    }
+
+
+    .eventhub-logo-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        font-size: 18px;
+    }
+
+
+    /* Navigation */
+
+    .eventhub-navigation {
+        order: 0;
+        flex: 0 0 auto;
+        width: auto;
+        margin: 0;
+        margin-right: 8px;
+    }
+
+
+        .eventhub-navigation::-webkit-scrollbar {
+            display: none;
+        }
+
+
+    ::deep .eventhub-nav-link {
+        flex-shrink: 0;
+        min-height: 38px;
+        padding: 7px 11px;
+        font-size: 0.82rem;
+    }
+
+
+    /* Header actions */
+
+    .eventhub-header-actions {
+        margin-left: auto;
+    }
+
+
+    .eventhub-auth-actions {
+        gap: 5px;
+    }
+
+
+    ::deep .eventhub-login-button,
+    ::deep .eventhub-register-button {
+        min-height: 38px;
+        padding: 7px 10px;
+        border-radius: 10px;
+        font-size: 0.78rem;
+    }
+
+
+    /* User */
+
+    .eventhub-user-menu {
+        min-height: 40px;
+        border-radius: 11px;
+        padding: 3px 7px 3px 3px;
+    }
+
+
+    .eventhub-user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        font-size: 15px;
+    }
+
+
+    .eventhub-user-arrow {
+        display: none;
+    }
+
+
+    /* Main */
+
+    .eventhub-content {
+        min-height: calc(100vh - 150px);
+        padding: 20px 14px 30px;
+    }
+
+
+    /* Footer */
+
+    .eventhub-footer-container {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        gap: 9px;
+        padding: 18px 14px;
+    }
+
+
+    .eventhub-footer-brand {
+        flex-direction: column;
+        gap: 2px;
+    }
+
+
+    .eventhub-footer-links {
+        flex-wrap: wrap;
+        gap: 8px 16px;
+    }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .eventhub-header-container {
+        padding: 9px 10px;
+    }
+
+
+    .eventhub-logo-text {
+        font-size: 1.05rem;
+    }
+
+
+    .eventhub-logo-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+
+    .eventhub-user-dropdown-menu {
+        top: 62px;
+        right: 8px;
+        width: 205px;
+    }
+
+    /* Hide text on buttons to save space */
+
+    ::deep .eventhub-login-button span:last-child,
+    ::deep .eventhub-register-button span:last-child {
+        display: inline;
+    }
+
+
+    ::deep .eventhub-login-button,
+    ::deep .eventhub-register-button {
+        min-height: 30px;
+        padding: 5px 7px;
+        border-radius: 8px;
+        gap: 4px;
+        font-size: 0.70rem;
+    }
+
+
+    .eventhub-navigation {
+        gap: 3px;
+    }
+
+
+    ::deep .eventhub-nav-link {
+        padding: 7px 9px;
+        font-size: 0.78rem;
+    }
+
+
+    .eventhub-content {
+        padding: 16px 10px 24px;
+    }
+
+
+    .eventhub-footer-brand span {
+        font-size: 0.72rem;
+    }
+
+
+    .eventhub-footer-links a {
+        font-size: 0.74rem;
+    }
+
+
+    #blazor-error-ui {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+    }
+
+
+        #blazor-error-ui .error-content {
+            flex-wrap: wrap;
+        }
+
+
+        #blazor-error-ui .reload {
+            margin-left: 0;
+        }
+}
+
+
+/* =========================================================
+   EXTRA SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 360px) {
+
+    .eventhub-logo-text {
+        font-size: 0.98rem;
+    }
+
+
+    .eventhub-auth-actions {
+        gap: 3px;
+    }
+
+
+    .eventhub-navigation {
+        margin-top: 0;
+    }
+
+
+    ::deep .eventhub-nav-link {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    ::deep .eventhub-login-button,
+    ::deep .eventhub-register-button {
+        padding: 6px 7px;
+        font-size: 0.70rem;
+        gap: 3px;
+    }
+}

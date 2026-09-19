@@ -1,0 +1,266 @@
+﻿@page "/verify-email"
+@rendermode InteractiveServer
+
+@using EventHub.Web.Models.Auth
+@using EventHub.Web.Services
+
+@inject AuthApiService AuthApi
+@inject NavigationManager Navigation
+
+<PageTitle>Xác thực Email - EventHub</PageTitle>
+
+<div class="auth-page">
+    <div class="auth-card">
+
+        <div class="auth-header">
+
+            <div class="logo">
+                EventHub
+            </div>
+
+            <h1>Xác thực Email</h1>
+
+            <p>
+                Nhập mã xác thực đã được gửi đến email của bạn
+            </p>
+
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Email))
+        {
+            <div class="email-display">
+                <span>📧</span>
+                <strong>@Email</strong>
+            </div>
+        }
+
+        <EditForm Model="@verifyModel"
+                  OnValidSubmit="@HandleVerify"
+                  FormName="VerifyEmailForm">
+
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+
+                <label for="verificationCode">
+                    Mã xác thực
+                </label>
+
+                <InputText id="verificationCode"
+                           class="form-control verification-input"
+                           @bind-Value="verifyModel.Code"
+                           maxlength="6"
+                           inputmode="numeric"
+                           placeholder="Nhập 6 chữ số" />
+
+                <ValidationMessage For="@(() => verifyModel.Code)" />
+
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                <div class="alert alert-danger">
+                    @errorMessage
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(successMessage))
+            {
+                <div class="alert alert-success">
+                    @successMessage
+                </div>
+            }
+
+            <button type="submit"
+                    class="btn-register"
+                    disabled="@isLoading">
+
+                @if (isLoading)
+                {
+                    <span>Đang xác thực...</span>
+                }
+                else
+                {
+                    <span>✓ Xác thực Email</span>
+                }
+
+            </button>
+
+        </EditForm>
+
+        <div class="resend-section">
+
+            <p>
+                Không nhận được mã?
+            </p>
+
+            <button type="button"
+                    class="btn-resend"
+                    @onclick="HandleResend"
+                    disabled="@isResending">
+
+                @if (isResending)
+                {
+                    <span>Đang gửi...</span>
+                }
+                else
+                {
+                    <span>↻ Gửi lại mã</span>
+                }
+
+            </button>
+
+        </div>
+
+        <div class="auth-links">
+
+            <a href="/login">
+                ← Quay lại đăng nhập
+            </a>
+
+        </div>
+
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "email")]
+    public string? Email { get; set; }
+
+    private VerifyEmailModel verifyModel = new();
+
+    private bool isLoading;
+
+    private bool isResending;
+
+    private string? errorMessage;
+
+    private string? successMessage;
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(Email))
+        {
+            Email = Uri.UnescapeDataString(Email);
+
+            verifyModel.Email = Email;
+        }
+    }
+
+    private async Task HandleVerify()
+    {
+        isLoading = true;
+
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(Email))
+            {
+                errorMessage =
+                    "Không xác định được email cần xác thực.";
+
+                return;
+            }
+
+            var request = new VerifyEmailRequest
+            {
+                Email = Email.Trim(),
+                Code = verifyModel.Code.Trim()
+            };
+
+            var result =
+                await AuthApi.VerifyEmailAsync(request);
+
+            if (result.Success)
+            {
+                successMessage =
+                    "Xác thực email thành công! Đang chuyển đến trang đăng nhập...";
+
+                await Task.Delay(1200);
+
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                errorMessage = result.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage =
+                $"Đã xảy ra lỗi: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task HandleResend()
+    {
+        if (string.IsNullOrWhiteSpace(Email))
+        {
+            errorMessage =
+                "Không xác định được email cần gửi mã.";
+
+            return;
+        }
+
+        isResending = true;
+
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var request =
+                new ResendVerificationCodeRequest
+                {
+                    Email = Email.Trim()
+                };
+
+            var result =
+                await AuthApi.ResendVerificationCodeAsync(request);
+
+            if (result.Success)
+            {
+                successMessage =
+                    "Mã xác thực mới đã được gửi đến email của bạn.";
+
+                verifyModel.Code = string.Empty;
+            }
+            else
+            {
+                errorMessage = result.Message;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage =
+                $"Đã xảy ra lỗi: {ex.Message}";
+        }
+        finally
+        {
+            isResending = false;
+        }
+    }
+
+    public class VerifyEmailModel
+    {
+        [System.ComponentModel.DataAnnotations.Required(
+            ErrorMessage = "Vui lòng nhập mã xác thực.")]
+
+        [System.ComponentModel.DataAnnotations.StringLength(
+            6,
+            MinimumLength = 6,
+            ErrorMessage = "Mã xác thực phải gồm 6 chữ số.")]
+
+        public string Code { get; set; } = string.Empty;
+
+        public string Email { get; set; } = string.Empty;
+    }
+}

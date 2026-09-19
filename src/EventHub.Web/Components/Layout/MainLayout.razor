@@ -1,23 +1,292 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<div class="eventhub-layout">
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+    <header class="eventhub-header">
+        <div class="eventhub-header-container">
+
+            <!-- LOGO -->
+            <div class="eventhub-logo-section">
+
+                <a href="/" class="eventhub-logo">
+
+                    <span class="eventhub-logo-icon">
+                        🎟️
+                    </span>
+
+                    <span class="eventhub-logo-text">
+                        EventHub
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- NAVIGATION -->
+            <NavMenu />
+
+
+            <!-- HEADER ACTIONS -->
+            <div class="eventhub-header-actions">
+
+                <AuthorizeView>
+
+                    <Authorized Context="authContext">
+
+                        <!-- USER MENU -->
+                        <div class="eventhub-user-dropdown">
+
+                            <!-- USER BUTTON -->
+                            <button type="button"
+                                    class="eventhub-user-menu"
+                                    @onclick="ToggleUserMenu">
+
+                                <div class="eventhub-user-avatar">
+                                    👤
+                                </div>
+
+                                <div class="eventhub-user-info">
+
+                                    <span class="eventhub-user-greeting">
+                                        Xin chào
+                                    </span>
+
+                                    <strong>
+                                        @authContext.User.Identity?.Name
+                                    </strong>
+
+                                </div>
+
+                                <span class="eventhub-user-arrow @(isUserMenuOpen ? "arrow-open" : "")">
+                                    ▾
+                                </span>
+
+                            </button>
+
+
+                            <!-- DROPDOWN -->
+                            @if (isUserMenuOpen)
+                            {
+                                <div class="eventhub-user-dropdown-menu">
+
+                                    <!-- PROFILE -->
+                                    <NavLink href="/profile"
+                                             class="eventhub-dropdown-item"
+                                             @onclick="CloseUserMenu">
+
+                                        <span class="eventhub-dropdown-icon">
+                                            👤
+                                        </span>
+
+                                        <span>
+                                            Hồ sơ
+                                        </span>
+
+                                    </NavLink>
+
+
+                                    <!-- CHANGE PASSWORD -->
+                                    <NavLink href="/forgot-password"
+                                             class="eventhub-dropdown-item"
+                                             @onclick="CloseUserMenu">
+
+                                        <span class="eventhub-dropdown-icon">
+                                            🔑
+                                        </span>
+
+                                        <span>
+                                            Đổi mật khẩu
+                                        </span>
+
+                                    </NavLink>
+
+
+                                    <!-- DIVIDER -->
+                                    <div class="eventhub-dropdown-divider"></div>
+
+
+                                    <!-- LOGOUT -->
+                                    <button type="button"
+                                            class="eventhub-dropdown-item eventhub-logout-item"
+                                            @onclick="LogoutAsync">
+
+                                        <span class="eventhub-dropdown-icon">
+                                            🚪
+                                        </span>
+
+                                        <span>
+                                            Đăng xuất
+                                        </span>
+
+                                    </button>
+
+                                </div>
+                            }
+
+                        </div>
+
+                    </Authorized>
+
+
+                    <NotAuthorized>
+
+                        <div class="eventhub-auth-actions">
+
+                            <NavLink href="/login"
+                                     class="eventhub-login-button">
+
+                                <span>🔐</span>
+                                <span>Đăng nhập</span>
+
+                            </NavLink>
+
+
+                            <NavLink href="/register"
+                                     class="eventhub-register-button">
+
+                                <span>📝</span>
+                                <span>Đăng ký</span>
+
+                            </NavLink>
+
+                        </div>
+
+                    </NotAuthorized>
+
+                </AuthorizeView>
+
+            </div>
+
+        </div>
+    </header>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="eventhub-main">
+
+        <div class="eventhub-content">
+            @Body
         </div>
 
-        <article class="content px-4">
-            @Body
-        </article>
     </main>
+
+
+    <!-- FOOTER -->
+    <footer class="eventhub-footer">
+
+        <div class="eventhub-footer-container">
+
+            <div class="eventhub-footer-brand">
+
+                <strong>
+                    🎟️ EventHub
+                </strong>
+
+                <span>
+                    Đặt vé sự kiện trực tuyến
+                </span>
+
+            </div>
+
+
+            <div class="eventhub-footer-links">
+
+                <a href="/">
+                    Trang chủ
+                </a>
+
+                <a href="/events">
+                    Sự kiện
+                </a>
+
+                <a href="/about">
+                    Về chúng tôi
+                </a>
+
+                <a href="/contact">
+                    Liên hệ
+                </a>
+
+            </div>
+
+
+            <div class="eventhub-footer-copy">
+                © @DateTime.Now.Year EventHub
+            </div>
+
+        </div>
+
+    </footer>
+
 </div>
 
+
+<!-- BLAZOR ERROR -->
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+
+    <div class="error-content">
+
+        <span>⚠️</span>
+
+        <span>
+            Đã xảy ra lỗi không mong muốn.
+        </span>
+
+        <a href="." class="reload">
+            Tải lại trang
+        </a>
+
+        <button class="dismiss"
+                aria-label="Đóng">
+            ✕
+        </button>
+
+    </div>
+
 </div>
+
+
+@code {
+
+    private bool isUserMenuOpen = false;
+
+
+    private void ToggleUserMenu()
+    {
+        isUserMenuOpen = !isUserMenuOpen;
+    }
+
+
+    private void CloseUserMenu()
+    {
+        isUserMenuOpen = false;
+    }
+
+
+    private async Task LogoutAsync()
+    {
+        isUserMenuOpen = false;
+
+        await CustomAuthStateProvider.NotifyUserLogout();
+
+        Navigation.NavigateTo("/login");
+    }
+
+
+    [Inject]
+    private EventHub.Web.Services.CustomAuthenticationStateProvider CustomAuthStateProvider
+    {
+        get;
+        set;
+    } = default!;
+
+
+    [Inject]
+    private NavigationManager Navigation
+    {
+        get;
+        set;
+    } = default!;
+}
