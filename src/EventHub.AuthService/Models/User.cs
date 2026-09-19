@@ -16,6 +16,8 @@ namespace EventHub.AuthService.Models
 
         public Role? Role { get; set; }
 
+        public bool EmailVerified { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
