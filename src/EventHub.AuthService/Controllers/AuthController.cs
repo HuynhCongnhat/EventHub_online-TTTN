@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Cryptography;
 using EventHub.AuthService.Services;
+using EventHub.AuthService.Validators;
 
 namespace EventHub.AuthService.Controllers;
 
@@ -43,11 +44,14 @@ public class AuthController : ControllerBase
             });
         }
 
-        if(request.Password.Length < 6)
+        //kiểm tra pass policy
+        var passwordValidationMessage = PasswordValidator.GetValidationMessage(request.Password);
+
+        if (!string.IsNullOrEmpty(passwordValidationMessage))
         {
             return BadRequest(new
             {
-                message = "Mật khẩu phải có ít nhất 6 ký tự."
+                message = passwordValidationMessage
             });
         }
 
@@ -429,13 +433,16 @@ public class AuthController : ControllerBase
             });
         }
 
-        if (request.NewPassword.Length < 6)
+        var passwordValidationMessage = PasswordValidator.GetValidationMessage(request.NewPassword);
+
+        if (!string.IsNullOrEmpty(passwordValidationMessage))
         {
             return BadRequest(new
             {
-                message = "Mật khẩu mới phải có ít nhất 6 ký tự."
+                message = passwordValidationMessage
             });
         }
+
 
         var email = request.Email.Trim();
 

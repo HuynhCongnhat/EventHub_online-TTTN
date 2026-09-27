@@ -12,12 +12,19 @@ builder.Services.AddCascadingAuthenticationState();
 //httpClinet gọi auth service
 builder.Services.AddHttpClient("AuthService", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5001");
+    //client.BaseAddress = new Uri("http://localhost:5000");
+    var gatewayUrl = builder.Configuration["GatewayUrl"]
+                     ?? throw new InvalidOperationException(
+                         "GatewayUrl chưa được cấu hình.");
+
+    client.BaseAddress = new Uri(gatewayUrl);
 }
 );
 
 // dang ky authApi
 builder.Services.AddScoped<AuthApiService>();
+
+builder.Services.AddScoped<EventApiService>();
 
 // dang ky authService
 builder.Services.AddScoped<AuthSessionService>();

@@ -1,0 +1,169 @@
+﻿@page "/events"
+@rendermode InteractiveServer
+
+@using EventHub.Web.Models.Event
+@using EventHub.Web.Services
+
+@inject EventApiService EventApiService
+
+<PageTitle>Sự kiện - EventHub</PageTitle>
+
+<div class="events-page">
+
+    <div class="events-header">
+        <div>
+            <h1>Khám phá sự kiện</h1>
+            <p>Tìm kiếm và khám phá những sự kiện hấp dẫn trên EventHub.</p>
+        </div>
+
+        <button class="refresh-btn" @onclick="LoadEventsAsync">
+            ↻ Làm mới
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="loading-box">
+            <div class="spinner"></div>
+            <p>Đang tải danh sách sự kiện...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-box">
+            <strong>Không thể tải sự kiện</strong>
+            <p>@errorMessage</p>
+
+            <button class="retry-btn" @onclick="LoadEventsAsync">
+                Thử lại
+            </button>
+        </div>
+    }
+    else if (events.Count == 0)
+    {
+        <div class="empty-box">
+            <div class="empty-icon">🎫</div>
+
+            <h3>Chưa có sự kiện</h3>
+
+            <p>
+                Hiện tại chưa có sự kiện nào được công bố.
+            </p>
+        </div>
+    }
+    else
+    {
+        <div class="events-count">
+            Có <strong>@events.Count</strong> sự kiện
+        </div>
+
+        <div class="events-grid">
+
+            @foreach (var item in events)
+            {
+                <article class="event-card">
+
+                    <div class="event-image">
+                        @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl"
+                                 alt="@item.Name" />
+                        }
+                        else
+                        {
+                            <div class="image-placeholder">
+                                🎫
+                            </div>
+                        }
+
+                        <span class="status-badge">
+                            @item.Status
+                        </span>
+                    </div>
+
+                    <div class="event-content">
+
+                        <span class="category">
+                            @item.CategoryName
+                        </span>
+
+                        <h2>@item.Name</h2>
+
+                        @if (!string.IsNullOrWhiteSpace(item.Description))
+                        {
+                            <p class="description">
+                                @item.Description
+                            </p>
+                        }
+
+                        <div class="event-info">
+                            <div>
+                                <span>📍</span>
+                                <span>
+                                    @item.LocationName
+                                    @if (!string.IsNullOrWhiteSpace(item.City))
+                                    {
+                                        <text>, @item.City</text>
+                                    }
+                                </span>
+                            </div>
+
+                            <div>
+                                <span>📅</span>
+                                <span>
+                                    @(item.StartDate.ToLocalTime()
+                                    .ToString("dd/MM/yyyy HH:mm"))
+                                </span>
+                            </div>
+                        </div>
+
+                        <a href="@($"/events/{item.Id}")"
+                               class="detail-btn">
+                            Xem chi tiết
+                            <span>→</span>
+                        </a>
+
+                    </div>
+
+                </article>
+            }
+
+        </div>
+    }
+
+</div>
+
+@code {
+
+    private List<EventDto> events = new();
+
+    private bool isLoading = true;
+
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEventsAsync();
+    }
+
+    private async Task LoadEventsAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            events = await EventApiService.GetEventsAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Đã xảy ra lỗi khi kết nối đến EventService.";
+
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

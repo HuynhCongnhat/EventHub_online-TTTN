@@ -1,0 +1,576 @@
+﻿@page "/admin/events"
+@rendermode InteractiveServer
+
+@using EventHub.Web.Models.Category
+@using EventHub.Web.Models.Event
+@using EventHub.Web.Models.Location
+@using EventHub.Web.Services
+
+@inject EventApiService EventApiService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Quản lý sự kiện - EventHub</PageTitle>
+
+<div class="admin-events-page">
+
+    <div class="page-header">
+        <div>
+            <span class="page-label">ADMIN</span>
+            <h1>Quản lý sự kiện</h1>
+            <p>Thêm, chỉnh sửa và quản lý các sự kiện trên EventHub.</p>
+        </div>
+
+        <button class="add-btn" @onclick="OpenCreateForm">
+            + Thêm sự kiện
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="success-message">
+            ✓ @message
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="error-message">
+            ⚠ @errorMessage
+        </div>
+    }
+
+    @if (showForm)
+    {
+        <div class="form-card">
+
+            <div class="form-header">
+                <div>
+                    <h2>@(editingId.HasValue ? "Chỉnh sửa sự kiện" : "Thêm sự kiện")</h2>
+                    <p>Nhập thông tin sự kiện bên dưới.</p>
+                </div>
+
+                <button class="close-btn" @onclick="CloseForm">
+                    ×
+                </button>
+            </div>
+
+            <div class="form-grid">
+
+                <div class="form-group full">
+                    <label>Tên sự kiện *</label>
+                    <input @bind="form.Name"
+                           placeholder="Ví dụ: Đêm nhạc EventHub 2026" />
+                </div>
+
+                <div class="form-group full">
+                    <label>Mô tả</label>
+                    <textarea @bind="form.Description"
+                              rows="4"
+                              placeholder="Mô tả nội dung sự kiện..."></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label>Image URL</label>
+                    <input @bind="form.ImageUrl"
+                           placeholder="https://..." />
+                </div>
+
+                <div class="form-group">
+                    <label>Danh mục *</label>
+
+                    <select @bind="form.CategoryId">
+                        <option value="">-- Chọn danh mục --</option>
+
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.Id">
+                                @category.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Địa điểm *</label>
+
+                    <select @bind="form.LocationId">
+                        <option value="">-- Chọn địa điểm --</option>
+
+                        @foreach (var location in locations)
+                        {
+                            <option value="@location.Id">
+                                @location.Name
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Bắt đầu *</label>
+
+                    <input type="datetime-local"
+                           value="@startDateText"
+                           @onchange="HandleStartDateChanged"/>
+                </div>
+
+                <div class="form-group">
+                    <label>Kết thúc *</label>
+
+                    <input type="datetime-local"
+                           value="@endDateText" 
+                           @onchange="HandleEndDateChanged"/>
+                </div>
+
+                <div class="form-group">
+                    <label>Trạng thái</label>
+
+                    <select @bind="form.Status">
+                        <option value="Draft">Draft</option>
+                        <option value="Published">Published</option>
+                        <option value="Cancelled">Cancelled</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button class="cancel-btn"
+                        @onclick="CloseForm">
+                    Hủy
+                </button>
+
+                <button class="save-btn"
+                        @onclick="SaveEventAsync"
+                        disabled="@isSaving">
+
+                    @(isSaving
+                        ? "Đang lưu..."
+                        : editingId.HasValue
+                            ? "Lưu thay đổi"
+                            : "Tạo sự kiện")
+                </button>
+
+            </div>
+
+        </div>
+    }
+
+    <div class="events-table-card">
+
+        <div class="table-header">
+            <div>
+                <h2>Danh sách sự kiện</h2>
+                <span>@events.Count sự kiện</span>
+            </div>
+
+            <button class="refresh-btn"
+                    @onclick="LoadDataAsync">
+                ↻ Làm mới
+            </button>
+        </div>
+
+        @if (isLoading)
+        {
+            <div class="loading">
+                Đang tải dữ liệu...
+            </div>
+        }
+        else if (events.Count == 0)
+        {
+            <div class="empty">
+                <div>🎫</div>
+                <h3>Chưa có sự kiện</h3>
+                <p>Hãy tạo sự kiện đầu tiên.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Sự kiện</th>
+                            <th>Danh mục</th>
+                            <th>Địa điểm</th>
+                            <th>Thời gian</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var item in events)
+                        {
+                            <tr>
+
+                                <td>
+                                    <div class="event-name">
+                                        @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                                        {
+                                            <img src="@item.ImageUrl"
+                                                 alt="@item.Name" />
+                                        }
+                                        else
+                                        {
+                                            <div class="mini-placeholder">
+                                                🎫
+                                            </div>
+                                        }
+
+                                        <div>
+                                            <strong>@item.Name</strong>
+
+                                            <span>
+                                                @item.Description
+                                            </span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @item.CategoryName
+                                </td>
+
+                                <td>
+                                    @item.LocationName
+                                </td>
+
+                                <td>
+                                    @(item.StartDate
+                                    .ToLocalTime()
+                                    .ToString("dd/MM/yyyy HH:mm"))
+                                </td>
+
+                                <td>
+                                    <span class="@GetStatusClass(item.Status)">
+                                        @item.Status
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="actions">
+
+                                        <button class="view-btn"
+                                                @onclick="() => ViewEvent(item.Id)">
+                                            Xem
+                                        </button>
+
+                                        <button class="edit-btn"
+                                                @onclick="() => EditEventAsync(item.Id)">
+                                            Sửa
+                                        </button>
+
+                                        <button class="delete-btn"
+                                                @onclick="() => DeleteEventAsync(item.Id)">
+                                            Xóa
+                                        </button>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+        }
+    </div>
+
+</div>
+
+@code {
+
+    private List<EventDto> events = new();
+    private List<CategoryDto> categories = new();
+    private List<LocationDto> locations = new();
+
+    private bool isLoading = true;
+    private bool isSaving;
+    private bool showForm;
+
+    private Guid? editingId;
+
+    private string? message;
+    private string? errorMessage;
+
+    private CreateEventRequest form = new();
+
+    private string startDateText = "";
+    private string endDateText = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            var eventsTask = EventApiService.GetEventsAsync();
+            var categoriesTask = EventApiService.GetCategoriesAsync();
+            var locationsTask = EventApiService.GetLocationsAsync();
+
+            await Task.WhenAll(
+                eventsTask,
+                categoriesTask,
+                locationsTask);
+
+            events = await eventsTask;
+            categories = await categoriesTask;
+            locations = await locationsTask;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorMessage = "Không thể tải dữ liệu quản lý sự kiện.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void OpenCreateForm()
+    {
+        editingId = null;
+
+        form = new CreateEventRequest
+        {
+            Status = "Draft"
+        };
+
+        startDateText = "";
+        endDateText = "";
+
+        message = null;
+        errorMessage = null;
+
+        showForm = true;
+    }
+
+    private async Task EditEventAsync(Guid id)
+    {
+        try
+        {
+            errorMessage = null;
+            message = null;
+
+            var item = await EventApiService.GetEventByIdAsync(id);
+
+            if (item is null)
+            {
+                errorMessage = "Không tìm thấy sự kiện.";
+                return;
+            }
+
+            editingId = id;
+
+            form = new CreateEventRequest
+            {
+                Name = item.Name,
+                Description = item.Description,
+                ImageUrl = item.ImageUrl,
+                CategoryId = item.CategoryId,
+                LocationId = item.LocationId,
+                StartDate = item.StartDate,
+                EndDate = item.EndDate,
+                Status = item.Status
+            };
+
+            startDateText = item.StartDate
+                .ToLocalTime()
+                .ToString("yyyy-MM-ddTHH:mm");
+
+            endDateText = item.EndDate
+                .ToLocalTime()
+                .ToString("yyyy-MM-ddTHH:mm");
+
+            showForm = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorMessage = "Không thể tải thông tin sự kiện.";
+        }
+    }
+
+    private void HandleStartDateChanged(ChangeEventArgs e)
+    {
+        startDateText = e.Value?.ToString() ?? string.Empty;
+    }
+
+    private void HandleEndDateChanged(ChangeEventArgs e)
+    {
+        endDateText = e.Value?.ToString() ?? string.Empty;
+    }
+
+    private async Task SaveEventAsync()
+    {
+        try
+        {
+            message = null;
+            errorMessage = null;
+
+            if (string.IsNullOrWhiteSpace(form.Name))
+            {
+                errorMessage = "Vui lòng nhập tên sự kiện.";
+                return;
+            }
+
+            if (form.CategoryId == Guid.Empty)
+            {
+                errorMessage = "Vui lòng chọn danh mục.";
+                return;
+            }
+
+            if (form.LocationId == Guid.Empty)
+            {
+                errorMessage = "Vui lòng chọn địa điểm.";
+                return;
+            }
+
+            if (!DateTime.TryParse(
+                    startDateText,
+                    out var startDate))
+            {
+                errorMessage = "Thời gian bắt đầu không hợp lệ.";
+                return;
+            }
+
+            if (!DateTime.TryParse(
+                    endDateText,
+                    out var endDate))
+            {
+                errorMessage = "Thời gian kết thúc không hợp lệ.";
+                return;
+            }
+
+            if (endDate <= startDate)
+            {
+                errorMessage =
+                    "Thời gian kết thúc phải sau thời gian bắt đầu.";
+                return;
+            }
+
+            form.StartDate = startDate.ToUniversalTime();
+            form.EndDate = endDate.ToUniversalTime();
+
+            isSaving = true;
+
+            if (editingId.HasValue)
+            {
+                var request = new UpdateEventRequest
+                {
+                    Name = form.Name,
+                    Description = form.Description,
+                    ImageUrl = form.ImageUrl,
+                    CategoryId = form.CategoryId,
+                    LocationId = form.LocationId,
+                    StartDate = form.StartDate,
+                    EndDate = form.EndDate,
+                    Status = form.Status
+                };
+
+                var success =
+                    await EventApiService.UpdateEventAsync(
+                        editingId.Value,
+                        request);
+
+                if (!success)
+                {
+                    errorMessage = "Không thể cập nhật sự kiện.";
+                    return;
+                }
+
+                message = "Cập nhật sự kiện thành công.";
+            }
+            else
+            {
+                var created =
+                    await EventApiService.CreateEventAsync(form);
+
+                if (created is null)
+                {
+                    errorMessage = "Không thể tạo sự kiện.";
+                    return;
+                }
+
+                message = "Tạo sự kiện thành công.";
+            }
+
+            showForm = false;
+
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorMessage = "Đã xảy ra lỗi khi lưu sự kiện.";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task DeleteEventAsync(Guid id)
+    {
+        try
+        {
+            message = null;
+            errorMessage = null;
+
+            var success =
+                await EventApiService.DeleteEventAsync(id);
+
+            if (!success)
+            {
+                errorMessage = "Không thể xóa sự kiện.";
+                return;
+            }
+
+            message = "Xóa sự kiện thành công.";
+
+            await LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorMessage = "Đã xảy ra lỗi khi xóa sự kiện.";
+        }
+    }
+
+    private void ViewEvent(Guid id)
+    {
+        NavigationManager.NavigateTo($"/events/{id}");
+    }
+
+    private void CloseForm()
+    {
+        showForm = false;
+        editingId = null;
+    }
+
+    private string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Published" => "status published",
+            "Cancelled" => "status cancelled",
+            "Completed" => "status completed",
+            _ => "status draft"
+        };
+    }
+}
