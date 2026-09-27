@@ -60,7 +60,6 @@
     flex-shrink: 0;
 }
 
-
 .eventhub-logo {
     display: inline-flex;
     align-items: center;
@@ -69,7 +68,6 @@
     color: #3d3030;
     transition: transform 0.2s ease, opacity 0.2s ease;
 }
-
 
     .eventhub-logo:hover {
         color: #3d3030;
@@ -87,12 +85,11 @@
     align-items: center;
     justify-content: center;
     border-radius: 13px;
-    background: linear-gradient( 135deg, #ff9b9b, #f06f6f );
+    background: linear-gradient(135deg, #ff9b9b, #f06f6f);
     box-shadow: 0 7px 18px rgba(225, 92, 92, 0.20);
     font-size: 20px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
 
 .eventhub-logo:hover .eventhub-logo-icon {
     transform: rotate(-4deg) scale(1.04);
@@ -115,31 +112,33 @@
    ========================================================= */
 
 .eventhub-navigation {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 5px;
-    margin-left: 28px;
+    margin-left: 24px;
 }
 
 
 /* Navigation item */
 
 ::deep .eventhub-nav-link {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 7px;
     min-height: 42px;
-    padding: 8px 14px;
+    padding: 8px 13px;
     border-radius: 11px;
     color: #725e5e;
+    background: transparent;
     text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 550;
     white-space: nowrap;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    font-size: 0.88rem;
+    font-weight: 550;
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 
@@ -148,6 +147,7 @@
     ::deep .eventhub-nav-link:hover {
         color: #d95757;
         background: #fff1f1;
+        text-decoration: none;
         transform: translateY(-1px);
     }
 
@@ -166,10 +166,11 @@
    ========================================================= */
 
 .eventhub-header-actions {
-    flex-shrink: 0;
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
-    margin-left: 20px;
+    margin-left: 16px;
+    min-width: 0;
 }
 
 
@@ -211,7 +212,6 @@
     border: 1px solid #f5d1d1;
 }
 
-
     ::deep .eventhub-login-button:hover {
         color: #c74646;
         background: #ffe7e7;
@@ -224,15 +224,14 @@
 
 ::deep .eventhub-register-button {
     color: white;
-    background: linear-gradient( 135deg, #ff9696, #eb6d6d );
+    background: linear-gradient(135deg, #ff9696, #eb6d6d);
     border: 1px solid transparent;
     box-shadow: 0 6px 15px rgba(218, 91, 91, 0.16);
 }
 
-
     ::deep .eventhub-register-button:hover {
         color: white;
-        background: linear-gradient( 135deg, #ff8585, #df5d5d );
+        background: linear-gradient(135deg, #ff8585, #df5d5d);
         transform: translateY(-2px);
         box-shadow: 0 9px 20px rgba(218, 91, 91, 0.22);
     }
@@ -242,98 +241,9 @@
    USER MENU
    ========================================================= */
 
-.eventhub-user-menu {
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 5px 10px 5px 5px;
-    border-radius: 14px;
-    background: #fff4f4;
-    border: 1px solid #f4d8d8;
-    cursor: pointer;
-    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-/* =========================================================
-   USER DROPDOWN
-   ========================================================= */
-
 .eventhub-user-dropdown {
     position: relative;
 }
-
-.eventhub-user-menu {
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 4px 10px 4px 5px;
-    border: 1px solid #f2d6d6;
-    border-radius: 14px;
-    background: #fff3f3;
-    cursor: pointer;
-    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-}
-
-    .eventhub-user-menu:hover {
-        background: #ffebeb;
-        transform: translateY(-1px);
-        box-shadow: 0 6px 16px rgba(210, 85, 85, 0.10);
-    }
-
-.eventhub-user-avatar {
-    width: 37px;
-    height: 37px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 11px;
-    background: linear-gradient(135deg, #ffd7d7, #ffc0c0);
-    font-size: 17px;
-}
-
-.eventhub-user-info {
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    line-height: 1.2;
-}
-
-.eventhub-user-greeting {
-    color: #987b7b;
-    font-size: 0.68rem;
-}
-
-.eventhub-user-info strong {
-    display: block;
-    max-width: 150px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #4b3838;
-    font-size: 0.85rem;
-    font-weight: 650;
-}
-
-.eventhub-user-arrow {
-    margin-left: 2px;
-    color: #b17b7b;
-    font-size: 14px;
-    transition: transform 0.2s ease;
-}
-
-    .eventhub-user-arrow.arrow-open {
-        transform: rotate(180deg);
-    }
-
-
-
-/* =========================================================
-   USER BUTTON
-   ========================================================= */
 
 .eventhub-user-menu {
     min-height: 46px;
@@ -403,7 +313,7 @@
 
 
 /* =========================================================
-   ARROW
+   USER ARROW
    ========================================================= */
 
 .eventhub-user-arrow {
@@ -417,31 +327,9 @@
         transform: rotate(180deg);
     }
 
+
 /* =========================================================
    DROPDOWN CONTAINER
-   ========================================================= */
-
-.eventhub-user-dropdown-menu {
-    position: absolute;
-    top: calc(100% + 9px);
-    right: 0;
-    z-index: 3000;
-    width: 220px;
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    background: #ffffff;
-    border: 1px solid #f1d4d4;
-    border-radius: 15px;
-    box-shadow: 0 12px 35px rgba(190, 80, 80, 0.16);
-    animation: userDropdownAppear 0.18s ease;
-}
-
-
-
-/* =========================================================
-   DROPDOWN MENU
    ========================================================= */
 
 .eventhub-user-dropdown-menu {
@@ -466,7 +354,6 @@
    ========================================================= */
 
 @keyframes userDropdownAppear {
-
     from {
         opacity: 0;
         transform: translateY(-5px) scale(0.98);
@@ -527,6 +414,7 @@
     font-size: 17px;
 }
 
+
 /* Text */
 
 .eventhub-dropdown-item span:not(.eventhub-dropdown-icon) {
@@ -561,23 +449,6 @@
         background: #fff0f0;
         color: #c74646;
     }
-
-/* =========================================================
-   ANIMATION
-   ========================================================= */
-
-@keyframes userDropdownAppear {
-
-    from {
-        opacity: 0;
-        transform: translateY(-5px) scale(0.98);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
 
 
 /* =========================================================
@@ -638,12 +509,10 @@
     white-space: nowrap;
 }
 
-
     .eventhub-footer-brand strong {
         color: #d95757;
         font-size: 0.9rem;
     }
-
 
     .eventhub-footer-brand span {
         color: #987f7f;
@@ -660,14 +529,12 @@
     gap: 20px;
 }
 
-
     .eventhub-footer-links a {
         color: #856f6f;
         text-decoration: none;
         font-size: 0.78rem;
         transition: color 0.2s ease;
     }
-
 
         .eventhub-footer-links a:hover {
             color: #d95757;
@@ -701,7 +568,6 @@
     color: #704747;
 }
 
-
     #blazor-error-ui .error-content {
         min-height: 55px;
         display: flex;
@@ -710,7 +576,6 @@
         padding: 10px 14px;
     }
 
-
     #blazor-error-ui .reload {
         margin-left: auto;
         color: #d95757;
@@ -718,11 +583,9 @@
         text-decoration: none;
     }
 
-
         #blazor-error-ui .reload:hover {
             color: #b94343;
         }
-
 
     #blazor-error-ui .dismiss {
         border: none;
@@ -744,39 +607,33 @@
         padding: 0 20px;
     }
 
-
     .eventhub-navigation {
-        margin-left: 15px;
-        gap: 2px;
-    }
-
-
-    ::deep .eventhub-nav-link {
-        padding: 8px 10px;
-        font-size: 0.84rem;
-    }
-
-
-    .eventhub-header-actions {
         margin-left: 12px;
     }
 
+    ::deep .eventhub-nav-link {
+        min-height: 40px;
+        padding: 8px 9px;
+        gap: 5px;
+        font-size: 0.81rem;
+    }
+
+    .eventhub-header-actions {
+        margin-left: 10px;
+    }
 
     .eventhub-user-info {
         display: none;
     }
 
-
     .eventhub-user-menu {
         padding-right: 6px;
     }
-
 
     .eventhub-content {
         padding-left: 20px;
         padding-right: 20px;
     }
-
 
     .eventhub-footer-container {
         padding-left: 20px;
@@ -796,7 +653,6 @@
         min-height: 64px;
         position: relative;
     }
-
 
     .eventhub-header-container {
         min-height: 64px;
@@ -818,12 +674,12 @@
         padding: 9px 11px;
     }
 
+
     /* Logo */
 
     .eventhub-logo-text {
         font-size: 1.15rem;
     }
-
 
     .eventhub-logo-icon {
         width: 38px;
@@ -843,11 +699,9 @@
         margin-right: 8px;
     }
 
-
         .eventhub-navigation::-webkit-scrollbar {
             display: none;
         }
-
 
     ::deep .eventhub-nav-link {
         flex-shrink: 0;
@@ -863,11 +717,9 @@
         margin-left: auto;
     }
 
-
     .eventhub-auth-actions {
         gap: 5px;
     }
-
 
     ::deep .eventhub-login-button,
     ::deep .eventhub-register-button {
@@ -886,14 +738,12 @@
         padding: 3px 7px 3px 3px;
     }
 
-
     .eventhub-user-avatar {
         width: 32px;
         height: 32px;
         border-radius: 9px;
         font-size: 15px;
     }
-
 
     .eventhub-user-arrow {
         display: none;
@@ -918,12 +768,10 @@
         padding: 18px 14px;
     }
 
-
     .eventhub-footer-brand {
         flex-direction: column;
         gap: 2px;
     }
-
 
     .eventhub-footer-links {
         flex-wrap: wrap;
@@ -942,11 +790,9 @@
         padding: 9px 10px;
     }
 
-
     .eventhub-logo-text {
         font-size: 1.05rem;
     }
-
 
     .eventhub-logo-icon {
         width: 35px;
@@ -960,13 +806,13 @@
         width: 205px;
     }
 
-    /* Hide text on buttons to save space */
+
+    /* Buttons */
 
     ::deep .eventhub-login-button span:last-child,
     ::deep .eventhub-register-button span:last-child {
         display: inline;
     }
-
 
     ::deep .eventhub-login-button,
     ::deep .eventhub-register-button {
@@ -978,10 +824,11 @@
     }
 
 
+    /* Navigation */
+
     .eventhub-navigation {
         gap: 3px;
     }
-
 
     ::deep .eventhub-nav-link {
         padding: 7px 9px;
@@ -989,20 +836,22 @@
     }
 
 
+    /* Main */
+
     .eventhub-content {
         padding: 16px 10px 24px;
     }
-
 
     .eventhub-footer-brand span {
         font-size: 0.72rem;
     }
 
-
     .eventhub-footer-links a {
         font-size: 0.74rem;
     }
 
+
+    /* Error */
 
     #blazor-error-ui {
         left: 10px;
@@ -1010,11 +859,9 @@
         bottom: 10px;
     }
 
-
         #blazor-error-ui .error-content {
             flex-wrap: wrap;
         }
-
 
         #blazor-error-ui .reload {
             margin-left: 0;
@@ -1032,16 +879,13 @@
         font-size: 0.98rem;
     }
 
-
     .eventhub-auth-actions {
         gap: 3px;
     }
 
-
     .eventhub-navigation {
         margin-top: 0;
     }
-
 
     ::deep .eventhub-nav-link {
         padding-left: 8px;

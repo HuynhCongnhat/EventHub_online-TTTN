@@ -1,7 +1,418 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+@using EventHub.Web.Models.Event
+@using EventHub.Web.Services
 
-<h1>Hello, world!</h1>
+@inject EventApiService EventApiService
+@inject NavigationManager Navigation
 
-Welcome to your new app.
+<PageTitle>EventHub - Đặt vé sự kiện trực tuyến</PageTitle>
+
+<div class="home-page">
+
+    <!-- HERO -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <span class="hero-badge">🎟️ EVENTHUB</span>
+
+            <h1>
+                Khám phá sự kiện<br />
+                <span>đáng nhớ của bạn</span>
+            </h1>
+
+            <p>
+                Tìm kiếm và đặt vé cho những sự kiện âm nhạc,
+                workshop, thể thao và giải trí hấp dẫn.
+            </p>
+
+            <div class="hero-search">
+                <span class="search-icon">🔎</span>
+
+                <input @bind="searchText"
+                       @bind:event="oninput"
+                       placeholder="Tìm kiếm sự kiện..." />
+
+                <button @onclick="SearchEvents">
+                    Tìm kiếm
+                </button>
+            </div>
+        </div>
+
+        <div class="hero-decoration">
+            <div class="ticket-card">
+                <div class="ticket-icon">🎫</div>
+                <div>
+                    <strong>Đặt vé dễ dàng</strong>
+                    <span>Nhận vé điện tử ngay</span>
+                </div>
+            </div>
+
+            <div class="floating-circle circle-one"></div>
+            <div class="floating-circle circle-two"></div>
+        </div>
+    </section>
+
+
+    <!-- FEATURED EVENTS -->
+    <section class="section-container">
+
+        <div class="section-heading">
+            <div>
+                <span class="section-label">KHÁM PHÁ</span>
+                <h2>Sự kiện nổi bật</h2>
+                <p>Những sự kiện đang được quan tâm trên EventHub</p>
+            </div>
+
+            <a href="/events" class="view-all">
+                Xem tất cả →
+            </a>
+        </div>
+
+        @if (isLoading)
+        {
+            <div class="loading-box">
+                <div class="spinner"></div>
+                <span>Đang tải sự kiện...</span>
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="error-box">
+                @errorMessage
+            </div>
+        }
+        else if (filteredEvents.Count == 0)
+        {
+            <div class="empty-box">
+                <div>🎭</div>
+                <h3>Chưa tìm thấy sự kiện</h3>
+                <p>Hãy thử tìm kiếm với từ khóa khác.</p>
+            </div>
+        }
+        else
+        {
+            <div class="event-grid">
+
+                @foreach (var item in filteredEvents.Take(6))
+                {
+                    <article class="event-card"
+                             @onclick="() => OpenEvent(item.Id)">
+
+                        <div class="event-image-wrapper">
+
+                            @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl"
+                                     alt="@item.Name"
+                                     class="event-image" />
+                            }
+                            else
+                            {
+                                <div class="event-image-placeholder">
+                                    🎟️
+                                </div>
+                            }
+
+                            <span class="event-status @GetStatusClass(item.Status)">
+                                @GetStatusText(item.Status)
+                            </span>
+                        </div>
+
+                        <div class="event-card-body">
+
+                            <div class="event-category">
+                                @(item.CategoryName ?? "Sự kiện")
+                            </div>
+
+                            <h3>@item.Name</h3>
+
+                            <div class="event-info">
+                                <span>📅</span>
+                                <span>
+                                    @item.StartDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                </span>
+                            </div>
+
+                            <div class="event-info">
+                                <span>📍</span>
+                                <span>
+                                    @(item.LocationName ?? "Địa điểm đang cập nhật")
+                                </span>
+                            </div>
+
+                            <button class="detail-button"
+                                    @onclick:stopPropagation="true"
+                                    @onclick="() => OpenEvent(item.Id)">
+                                Xem chi tiết
+                            </button>
+
+                        </div>
+                    </article>
+                }
+
+            </div>
+        }
+
+    </section>
+
+
+    <!-- CATEGORIES -->
+    <section class="category-section">
+
+        <div class="section-heading centered">
+            <div>
+                <span class="section-label">KHÁM PHÁ</span>
+                <h2>Tìm sự kiện theo sở thích</h2>
+                <p>Chọn một thể loại và bắt đầu khám phá</p>
+            </div>
+        </div>
+
+        <div class="category-grid">
+
+            <button class="category-card music"
+                    @onclick='() => SearchCategory("Âm nhạc")'>
+                <span class="category-icon">🎵</span>
+                <strong>Âm nhạc</strong>
+                <small>Concert & Show</small>
+            </button>
+
+            <button class="category-card workshop"
+                    @onclick='() => SearchCategory("Workshop")'>
+                <span class="category-icon">💡</span>
+                <strong>Workshop</strong>
+                <small>Học hỏi & sáng tạo</small>
+            </button>
+
+            <button class="category-card sport"
+                    @onclick='() => SearchCategory("Thể thao")'>
+                <span class="category-icon">⚽</span>
+                <strong>Thể thao</strong>
+                <small>Trận đấu & giải đấu</small>
+            </button>
+
+            <button class="category-card entertainment"
+                    @onclick='() => SearchCategory("Giải trí")'>
+                <span class="category-icon">🎭</span>
+                <strong>Giải trí</strong>
+                <small>Show & chương trình</small>
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- WHY EVENTHUB -->
+    <section class="why-section">
+
+        <div class="section-heading centered">
+            <div>
+                <span class="section-label">EVENTHUB</span>
+                <h2>Tại sao chọn EventHub?</h2>
+            </div>
+        </div>
+
+        <div class="benefit-grid">
+
+            <div class="benefit-card">
+                <div class="benefit-icon">🎟️</div>
+                <h3>Đặt vé dễ dàng</h3>
+                <p>
+                    Tìm kiếm và đặt vé trực tuyến nhanh chóng
+                    chỉ với vài bước đơn giản.
+                </p>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon">🔒</div>
+                <h3>Thanh toán an toàn</h3>
+                <p>
+                    Hỗ trợ thanh toán trực tuyến an toàn
+                    thông qua VNPay.
+                </p>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon">📱</div>
+                <h3>Vé điện tử</h3>
+                <p>
+                    Nhận vé điện tử và mã QR để sử dụng
+                    khi tham gia sự kiện.
+                </p>
+            </div>
+
+            <div class="benefit-card">
+                <div class="benefit-icon">⚡</div>
+                <h3>Cập nhật nhanh</h3>
+                <p>
+                    Theo dõi tình trạng vé và thông tin
+                    sự kiện một cách nhanh chóng.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- CTA -->
+    <section class="cta-section">
+
+        <div class="cta-content">
+            <span>🎉 Sẵn sàng cho trải nghiệm mới?</span>
+
+            <h2>
+                Tìm sự kiện tiếp theo<br />
+                của bạn ngay hôm nay.
+            </h2>
+
+            <button @onclick="GoToEvents">
+                Khám phá sự kiện
+                <span>→</span>
+            </button>
+        </div>
+
+    </section>
+
+</div>
+
+@code {
+
+    private List<EventDto> events = new();
+    private List<EventDto> filteredEvents = new();
+
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string searchText = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvents();
+    }
+
+    private async Task LoadEvents()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            events = await EventApiService.GetEventsAsync();
+
+            filteredEvents = events
+                .Where(x => string.Equals(
+                    x.Status,
+                    "Published",
+                    StringComparison.OrdinalIgnoreCase))
+                .OrderBy(x => x.StartDate)
+                .ToList();
+        }
+        catch
+        {
+            errorMessage = "Không thể tải danh sách sự kiện.";
+            filteredEvents = new List<EventDto>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SearchEvents()
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            filteredEvents = events
+                .Where(x => string.Equals(
+                    x.Status,
+                    "Published",
+                    StringComparison.OrdinalIgnoreCase))
+                .OrderBy(x => x.StartDate)
+                .ToList();
+
+            return;
+        }
+
+        var keywords = searchText.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        filteredEvents = events
+            .Where(x =>
+                string.Equals(
+                    x.Status,
+                    "Published",
+                    StringComparison.OrdinalIgnoreCase)
+                &&
+                keywords.All(keyword =>(
+                    (x.Name?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                    ||
+                    (x.Description?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                    ||
+                    (x.LocationName?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                    ||
+					(x.CategoryName?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                    ||
+					(x.City?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false)
+                )
+                    
+                ))
+            .OrderBy(x => x.StartDate)
+            .ToList();
+    }
+
+    private void SearchCategory(string category)
+    {
+
+        searchText = category;
+
+        filteredEvents = events
+            .Where(x =>
+                string.Equals(
+                    x.Status,
+                    "Published",
+                    StringComparison.OrdinalIgnoreCase)
+                &&
+                (
+                    x.CategoryName?.Contains(
+                        category,
+                        StringComparison.OrdinalIgnoreCase) ?? false
+                ))
+            .OrderBy(x => x.StartDate)
+            .ToList();
+
+        //searchText = category;
+		//StateHasChanged();
+    }
+
+    private void OpenEvent(Guid id)
+    {
+        Navigation.NavigateTo($"/events/{id}");
+    }
+
+    private void GoToEvents()
+    {
+        Navigation.NavigateTo("/events");
+    }
+
+    private string GetStatusClass(string status)
+    {
+        return status.ToLowerInvariant() switch
+        {
+            "published" => "status-published",
+            "draft" => "status-draft",
+            "cancelled" => "status-cancelled",
+            _ => "status-default"
+        };
+    }
+
+    private string GetStatusText(string status)
+    {
+        return status.ToLowerInvariant() switch
+        {
+            "published" => "Đang mở bán",
+            "draft" => "Bản nháp",
+            "cancelled" => "Đã hủy",
+            _ => status
+        };
+    }
+}

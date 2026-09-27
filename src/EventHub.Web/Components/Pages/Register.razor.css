@@ -285,8 +285,46 @@
             color: #c84646;
             text-decoration: underline;
         }
+/*
+.password-requirements {
+    margin-top: 10px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #fff7f7;
+    border: 1px solid #f5dada;
+}
 
+.requirements-title {
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+}
 
+.password-requirement {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 5px;
+    font-size: 13px;
+    color: #888;
+    transition: color 0.2s ease;
+}
+
+    .password-requirement span {
+        width: 18px;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .password-requirement.valid {
+        color: #198754;
+    }
+
+        .password-requirement.valid span {
+            color: #198754;
+        }
+    */
 /* =========================================================
    MOBILE
    ========================================================= */

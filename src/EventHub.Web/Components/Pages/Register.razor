@@ -57,9 +57,48 @@
                            type="password"
                            class="form-control"
                            @bind-Value="registerModel.Password"
+						   @bind-Value:after="OnPasswordChanged"
                            placeholder="Nhập mật khẩu" />
 
-                <ValidationMessage For="@(() => registerModel.Password)" />
+                <ValidationMessage For="@(() => registerModel.Password)"/>
+
+      @*           <div class="password-requirements">
+                    <div class="requirements-title">
+                        Yêu cầu mật khẩu: 
+                    </div>
+
+                    <div class="@GetRequirementClass(passwordLengthValid)">
+                        <span>@GetRequirementIcon(passwordLengthValid)</span>
+                        Ít nhất 8 ký tự
+                    </div>
+
+                    <div class="@GetRequirementClass(passwordUpperValid)">
+                        <span>@GetRequirementIcon(passwordUpperValid)</span>
+						Có ít nhất 1 chữ hoa
+                    </div>
+
+                    <div class="@GetRequirementClass(passwordLowerthValid)">
+                        <span>@GetRequirementIcon(passwordLowerthValid)</span>
+                        Có ít nhất 1 chữ thường
+                    </div>
+
+                    <div class="@GetRequirementClass(passwordDigitValid)">
+                        <span>@GetRequirementIcon(passwordDigitValid)</span>
+                        Có ít nhất 1 chữ số
+                    </div>
+
+                    <div class="@GetRequirementClass(passwordSpecialValid)">
+                        <span>@GetRequirementIcon(passwordSpecialValid)</span>
+                        Có ít nhất 1 ký tự đặc biệt
+                    </div>
+
+                    <div class="@GetRequirementClass(passwordWhitespaceValid)">
+                        <span>@GetRequirementIcon(passwordWhitespaceValid)</span>
+                        Không chứa khoảng trắng
+                    </div>
+                </div> *@
+
+                
             </div>
 
             <!-- Xác nhận mật khẩu -->
@@ -70,9 +109,18 @@
                            type="password"
                            class="form-control"
                            @bind-Value="registerModel.ConfirmPassword"
+                           @bind-Value:after="OnConfirmPasswordChanged"
                            placeholder="Nhập lại mật khẩu" />
 
                 <ValidationMessage For="@(() => registerModel.ConfirmPassword)" />
+
+         @*        @if (!string.IsNullOrEmpty(registerModel.ConfirmPassword))
+                {
+                    <div class="@GetRequirementClass(passwordsMatch)">
+                        <span>@GetRequirementIcon(passwordsMatch)</span>
+					    Mật khẩu xác nhận khớp
+                    </div>
+                } *@
             </div>
 
             @if (!string.IsNullOrEmpty(errorMessage))
@@ -128,6 +176,49 @@
 
     private string? successMessage;
 
+    private bool passwordLengthValid;
+    private bool passwordUpperValid;
+    private bool passwordLowerthValid;
+    private bool passwordDigitValid;
+    private bool passwordSpecialValid;
+    private bool passwordWhitespaceValid;
+    private bool passwordsMatch;
+
+    private void OnPasswordChanged()
+    {
+        ValidatePasswordRequirements();
+    }
+
+    private void OnConfirmPasswordChanged()
+    {
+        passwordsMatch = !string.IsNullOrEmpty(registerModel.ConfirmPassword) && registerModel.Password == registerModel.ConfirmPassword;
+    }
+
+    private void ValidatePasswordRequirements()
+    {
+		var password = registerModel.Password ?? string.Empty;
+
+		passwordLengthValid = password.Length >= 8;
+
+		passwordUpperValid = password.Any(char.IsUpper);
+
+		passwordLowerthValid = password.Any(char.IsLower);
+
+		passwordDigitValid = password.Any(char.IsDigit);
+
+		passwordSpecialValid = password.Any(character => !char.IsLetterOrDigit(character) && !char.IsWhiteSpace(character));
+
+		passwordWhitespaceValid = !password.Any(char.IsWhiteSpace);
+
+		passwordsMatch = !string.IsNullOrEmpty(registerModel.ConfirmPassword) && registerModel.Password == registerModel.ConfirmPassword;
+    }
+
+    private static string GetRequirementClass(bool valid)
+    {
+        return valid ? "password-requirement valid" : "password-requirement ";
+	}
+
+
     private async Task HandleRegister()
     {
         isLoading = true;
@@ -161,29 +252,23 @@
 
     public class RegisterModel
     {
-        [System.ComponentModel.DataAnnotations.Required(
-            ErrorMessage = "Vui lòng nhập họ và tên.")]
-        [System.ComponentModel.DataAnnotations.StringLength(
-            150,
-            MinimumLength = 2,
-            ErrorMessage = "Họ và tên phải từ 2 đến 150 ký tự.")]
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng nhập họ và tên.")]
+
+        [System.ComponentModel.DataAnnotations.StringLength(150, MinimumLength = 2, ErrorMessage = "Họ và tên phải từ 2 đến 150 ký tự.")]
         public string FullName { get; set; } = string.Empty;
 
-        [System.ComponentModel.DataAnnotations.Required(
-            ErrorMessage = "Vui lòng nhập email.")]
-        [System.ComponentModel.DataAnnotations.EmailAddress(
-            ErrorMessage = "Email không hợp lệ.")]
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Vui lòng nhập email.")]
+        
+        [System.ComponentModel.DataAnnotations.EmailAddress( ErrorMessage = "Email không hợp lệ.")]
         public string Email { get; set; } = string.Empty;
 
-        [System.ComponentModel.DataAnnotations.Required(
-            ErrorMessage = "Vui lòng nhập mật khẩu.")]
-        [System.ComponentModel.DataAnnotations.MinLength(
-            6,
-            ErrorMessage = "Mật khẩu phải có ít nhất 6 ký tự.")]
+        [System.ComponentModel.DataAnnotations.Required( ErrorMessage = "Vui lòng nhập mật khẩu.")]
+		[System.ComponentModel.DataAnnotations.MinLength(8, ErrorMessage = "Mật khẩu phải có ít nhất 8 ký tự.")]
+        [System.ComponentModel.DataAnnotations.RegularExpression(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*\W)(?!.*\s).+$", ErrorMessage = "Mật khẩu phải có chữ hoa, chữ thường, số, ký tự đặc biệt và không có khoảng trắng")]
         public string Password { get; set; } = string.Empty;
 
-        [System.ComponentModel.DataAnnotations.Required(
-            ErrorMessage = "Vui lòng xác nhận mật khẩu.")]
+        [System.ComponentModel.DataAnnotations.Required( ErrorMessage = "Vui lòng xác nhận mật khẩu.")]
+		[System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp.")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 
