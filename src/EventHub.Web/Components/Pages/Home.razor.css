@@ -1,0 +1,1098 @@
+﻿/* =========================================================
+   EVENTHUB - HOME PAGE
+   Pastel Red / Youthful / Responsive
+   ========================================================= */
+
+/* ---------- ROOT ---------- */
+
+.home-page {
+    width: 100%;
+    min-height: 100vh;
+    background: #fff8f8;
+    color: #3f3030;
+    overflow-x: hidden;
+}
+
+    .home-page * {
+        box-sizing: border-box;
+    }
+
+
+/* =========================================================
+   HERO SECTION
+   ========================================================= */
+
+.hero-section {
+    position: relative;
+    min-height: 570px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+    padding: 80px max(6vw, 40px);
+    background: radial-gradient( circle at 85% 20%, rgba(255, 187, 187, 0.45), transparent 30% ), radial-gradient( circle at 15% 90%, rgba(255, 218, 218, 0.55), transparent 35% ), linear-gradient( 135deg, #fff5f5 0%, #ffeaea 48%, #fffafa 100% );
+    border-bottom: 1px solid #f9dddd;
+}
+
+
+/* ---------- HERO CONTENT ---------- */
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    width: min(680px, 58%);
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 22px;
+    padding: 8px 15px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid #f7caca;
+    color: #d94f5c;
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    box-shadow: 0 5px 18px rgba(205, 83, 91, 0.08);
+}
+
+.hero-content h1 {
+    margin: 0;
+    font-size: clamp(2.8rem, 5vw, 5rem);
+    line-height: 1.04;
+    letter-spacing: -2.5px;
+    font-weight: 850;
+    color: #392727;
+}
+
+    .hero-content h1 span {
+        color: #dc5661;
+    }
+
+.hero-content p {
+    max-width: 600px;
+    margin: 25px 0 32px;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: #765f5f;
+}
+
+
+/* ---------- HERO SEARCH ---------- */
+
+.hero-search {
+    width: min(610px, 100%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px;
+    background: #ffffff;
+    border: 1px solid #f3d0d0;
+    border-radius: 18px;
+    box-shadow: 0 15px 35px rgba(185, 76, 86, 0.12), 0 3px 10px rgba(185, 76, 86, 0.05);
+}
+
+.search-icon {
+    flex: 0 0 auto;
+    padding-left: 13px;
+    font-size: 1.15rem;
+}
+
+.hero-search input {
+    min-width: 0;
+    flex: 1;
+    height: 48px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #3f3030;
+    font-size: 0.98rem;
+}
+
+    .hero-search input::placeholder {
+        color: #aa9292;
+    }
+
+.hero-search button {
+    flex: 0 0 auto;
+    min-height: 48px;
+    padding: 0 24px;
+    border: none;
+    border-radius: 13px;
+    background: #df5964;
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 750;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .hero-search button:hover {
+        background: #cf4653;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(207, 70, 83, 0.22);
+    }
+
+    .hero-search button:active {
+        transform: translateY(0);
+    }
+
+
+/* ---------- HERO DECORATION ---------- */
+
+.hero-decoration {
+    position: relative;
+    width: min(420px, 38%);
+    min-height: 360px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ticket-card {
+    position: relative;
+    z-index: 3;
+    width: min(330px, 90%);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #f4cccc;
+    border-radius: 25px;
+    box-shadow: 0 25px 60px rgba(192, 76, 86, 0.15), 0 8px 20px rgba(192, 76, 86, 0.08);
+    transform: rotate(3deg);
+    animation: ticketFloat 4s ease-in-out infinite;
+}
+
+.ticket-icon {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 20px;
+    background: #ffe2e3;
+    font-size: 2rem;
+}
+
+.ticket-card strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #432d2d;
+    font-size: 1.05rem;
+}
+
+.ticket-card span {
+    color: #8d7474;
+    font-size: 0.88rem;
+}
+
+.floating-circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(0.2px);
+}
+
+.circle-one {
+    width: 190px;
+    height: 190px;
+    top: 20px;
+    right: 10px;
+    background: rgba(255, 160, 165, 0.28);
+}
+
+.circle-two {
+    width: 120px;
+    height: 120px;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(255, 211, 211, 0.75);
+}
+
+@keyframes ticketFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(3deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotate(3deg);
+    }
+}
+
+
+/* =========================================================
+   COMMON SECTION
+   ========================================================= */
+
+.section-container {
+    width: min(1240px, 90%);
+    margin: 0 auto;
+    padding: 90px 0;
+}
+
+.section-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 38px;
+}
+
+    .section-heading.centered {
+        justify-content: center;
+        text-align: center;
+    }
+
+.section-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #db5661;
+    font-size: 1rem;
+    font-weight: 850;
+    letter-spacing: 2px;
+}
+
+.section-heading h2 {
+    margin: 0;
+    color: #3d2c2c;
+    font-size: clamp(1.8rem, 3vw, 2.65rem);
+    line-height: 1.2;
+    letter-spacing: -0.7px;
+}
+
+.section-heading p {
+    margin: 10px 0 0;
+    color: #8b7474;
+    font-size: 0.96rem;
+    line-height: 1.6;
+}
+
+.view-all {
+    flex-shrink: 0;
+    color: #d95460;
+    font-size: 0.92rem;
+    font-weight: 750;
+    text-decoration: none;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+    .view-all:hover {
+        color: #bd3f4b;
+        transform: translateX(4px);
+    }
+
+
+/* =========================================================
+   LOADING / ERROR / EMPTY
+   ========================================================= */
+
+.loading-box,
+.error-box,
+.empty-box {
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 22px;
+    background: #ffffff;
+    border: 1px solid #f3dddd;
+}
+
+.loading-box {
+    flex-direction: row;
+    gap: 14px;
+    color: #816b6b;
+}
+
+.spinner {
+    width: 25px;
+    height: 25px;
+    border: 3px solid #f4d5d5;
+    border-top-color: #dc5661;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.error-box {
+    color: #c84550;
+    background: #fff1f1;
+    padding: 30px;
+    text-align: center;
+}
+
+.empty-box {
+    padding: 40px;
+    text-align: center;
+}
+
+    .empty-box > div {
+        margin-bottom: 12px;
+        font-size: 3rem;
+    }
+
+    .empty-box h3 {
+        margin: 0 0 8px;
+        color: #493636;
+        font-size: 1.25rem;
+    }
+
+    .empty-box p {
+        margin: 0;
+        color: #927d7d;
+    }
+
+
+/* =========================================================
+   EVENT GRID
+   ========================================================= */
+
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 25px;
+}
+
+
+/* ---------- EVENT CARD ---------- */
+
+.event-card {
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #f2dddd;
+    border-radius: 22px;
+    box-shadow: 0 8px 25px rgba(120, 60, 60, 0.06);
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+    .event-card:hover {
+        transform: translateY(-7px);
+        border-color: #edbcbc;
+        box-shadow: 0 20px 40px rgba(145, 65, 75, 0.13), 0 5px 15px rgba(145, 65, 75, 0.06);
+    }
+
+
+/* ---------- EVENT IMAGE ---------- */
+
+.event-image-wrapper {
+    position: relative;
+    height: 215px;
+    overflow: hidden;
+    background: #ffe9e9;
+}
+
+.event-image {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.45s ease;
+}
+
+.event-card:hover .event-image {
+    transform: scale(1.06);
+}
+
+.event-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient( circle at 30% 30%, #ffc9c9, transparent 40% ), linear-gradient( 135deg, #ffe5e5, #fff6f6 );
+    color: #d95b65;
+    font-size: 3.2rem;
+}
+
+
+/* ---------- STATUS ---------- */
+
+.event-status {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.status-published {
+    background: rgba(255, 255, 255, 0.9);
+    color: #c74350;
+}
+
+.status-draft {
+    background: rgba(255, 245, 218, 0.94);
+    color: #a76b12;
+}
+
+.status-cancelled {
+    background: rgba(80, 55, 55, 0.82);
+    color: #ffffff;
+}
+
+.status-default {
+    background: rgba(255, 255, 255, 0.9);
+    color: #665353;
+}
+
+
+/* ---------- EVENT BODY ---------- */
+
+.event-card-body {
+    padding: 22px;
+}
+
+.event-category {
+    margin-bottom: 8px;
+    color: #db5963;
+    font-size: 0.72rem;
+    font-weight: 850;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.event-card-body h3 {
+    min-height: 52px;
+    margin: 0 0 15px;
+    color: #3d2c2c;
+    font-size: 1.16rem;
+    line-height: 1.45;
+    font-weight: 800;
+}
+
+.event-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 9px;
+    color: #806c6c;
+    font-size: 0.84rem;
+    line-height: 1.4;
+}
+
+    .event-info span:first-child {
+        flex: 0 0 auto;
+    }
+
+.detail-button {
+    width: 100%;
+    margin-top: 20px;
+    min-height: 43px;
+    border: 1px solid #f1caca;
+    border-radius: 12px;
+    background: #fff6f6;
+    color: #d4515c;
+    font-size: 0.87rem;
+    font-weight: 750;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+    .detail-button:hover {
+        background: #df5964;
+        border-color: #df5964;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+
+/* =========================================================
+   CATEGORY SECTION
+   ========================================================= */
+
+.category-section {
+    padding: 90px max(6vw, 40px);
+    background: linear-gradient( 180deg, #fffafa 0%, #fff1f1 100% );
+    border-top: 1px solid #f9dddd;
+    border-bottom: 1px solid #f9dddd;
+}
+
+.category-grid {
+    width: min(1100px, 100%);
+    margin: 40px auto 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.category-card {
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 20px;
+    border: 1px solid #f2d3d3;
+    border-radius: 22px;
+    background: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(130, 70, 70, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+    .category-card:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 18px 35px rgba(130, 70, 70, 0.11);
+        border-color: #eab4b4;
+    }
+
+.category-icon {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    border-radius: 20px;
+    font-size: 2rem;
+}
+
+.category-card strong {
+    color: #453333;
+    font-size: 1.05rem;
+}
+
+.category-card small {
+    margin-top: 7px;
+    color: #927d7d;
+    font-size: 0.8rem;
+}
+
+
+/* ---------- CATEGORY COLORS ---------- */
+
+.category-card.music .category-icon {
+    background: #ffe0e3;
+}
+
+.category-card.workshop .category-icon {
+    background: #fff0d8;
+}
+
+.category-card.sport .category-icon {
+    background: #e1f5ed;
+}
+
+.category-card.entertainment .category-icon {
+    background: #eee4ff;
+}
+
+
+/* =========================================================
+   WHY EVENTHUB
+   ========================================================= */
+
+.why-section {
+    width: min(1180px, 90%);
+    margin: 0 auto;
+    padding: 90px 0;
+}
+
+.benefit-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 42px;
+}
+
+.benefit-card {
+    padding: 28px 24px;
+    border-radius: 20px;
+    background: #ffffff;
+    border: 1px solid #f1dddd;
+    box-shadow: 0 7px 22px rgba(120, 60, 60, 0.045);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+    .benefit-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(120, 60, 60, 0.09);
+    }
+
+.benefit-icon {
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    border-radius: 16px;
+    background: #fff0f0;
+    font-size: 1.55rem;
+}
+
+.benefit-card h3 {
+    margin: 0 0 10px;
+    color: #433232;
+    font-size: 1rem;
+}
+
+.benefit-card p {
+    margin: 0;
+    color: #8a7575;
+    font-size: 0.87rem;
+    line-height: 1.65;
+}
+
+
+/* =========================================================
+   CTA SECTION
+   ========================================================= */
+
+.cta-section {
+    position: relative;
+    margin: 0 max(4vw, 20px) 60px;
+    overflow: hidden;
+    border-radius: 30px;
+    background: radial-gradient( circle at 85% 20%, rgba(255, 255, 255, 0.18), transparent 28% ), radial-gradient( circle at 15% 90%, rgba(255, 255, 255, 0.1), transparent 30% ), linear-gradient( 135deg, #d94e5b 0%, #e66b75 52%, #c94250 100% );
+    box-shadow: 0 25px 50px rgba(188, 65, 77, 0.2);
+}
+
+    .cta-section::before,
+    .cta-section::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .cta-section::before {
+        width: 300px;
+        height: 300px;
+        top: -160px;
+        right: -70px;
+    }
+
+    .cta-section::after {
+        width: 180px;
+        height: 180px;
+        bottom: -100px;
+        left: 10%;
+    }
+
+.cta-content {
+    position: relative;
+    z-index: 2;
+    padding: 75px 30px;
+    text-align: center;
+    color: white;
+}
+
+    .cta-content > span {
+        display: inline-block;
+        margin-bottom: 15px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        opacity: 0.9;
+    }
+
+    .cta-content h2 {
+        margin: 0 0 30px;
+        color: white;
+        font-size: clamp(2rem, 4vw, 3.3rem);
+        line-height: 1.15;
+        letter-spacing: -1px;
+    }
+
+    .cta-content button {
+        min-height: 52px;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 0 27px;
+        border: none;
+        border-radius: 15px;
+        background: white;
+        color: #d24e5b;
+        font-size: 0.95rem;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: 0 10px 25px rgba(100, 30, 40, 0.18);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .cta-content button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(100, 30, 40, 0.23);
+        }
+
+        .cta-content button span {
+            font-size: 1.2rem;
+            transition: transform 0.2s ease;
+        }
+
+        .cta-content button:hover span {
+            transform: translateX(4px);
+        }
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 1000px) {
+
+    .hero-section {
+        min-height: auto;
+        padding-top: 65px;
+        padding-bottom: 65px;
+        gap: 25px;
+    }
+
+    .hero-content {
+        width: 60%;
+    }
+
+    .hero-decoration {
+        width: 40%;
+    }
+
+    .event-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .benefit-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .hero-section {
+        min-height: auto;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 50px 20px 55px;
+        gap: 35px;
+    }
+
+    .hero-content {
+        width: 100%;
+    }
+
+    .hero-badge {
+        margin-bottom: 17px;
+    }
+
+    .hero-content h1 {
+        font-size: clamp(2.35rem, 11vw, 3.3rem);
+        letter-spacing: -1.5px;
+    }
+
+    .hero-content p {
+        margin: 20px 0 25px;
+        font-size: 0.95rem;
+        line-height: 1.65;
+    }
+
+    .hero-search {
+        padding: 6px;
+        border-radius: 15px;
+    }
+
+        .hero-search input {
+            height: 45px;
+            font-size: 0.9rem;
+        }
+
+        .hero-search button {
+            min-height: 45px;
+            padding: 0 16px;
+            font-size: 0.84rem;
+        }
+
+    .hero-decoration {
+        width: 100%;
+        min-height: 250px;
+    }
+
+    .ticket-card {
+        width: min(310px, 90%);
+        padding: 19px;
+        transform: rotate(2deg);
+    }
+
+    .ticket-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 16px;
+        font-size: 1.65rem;
+    }
+
+    .section-container,
+    .why-section {
+        width: calc(100% - 40px);
+        padding: 65px 0;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 28px;
+    }
+
+        .section-heading.centered {
+            align-items: center;
+        }
+
+        .section-heading h2 {
+            font-size: 1.8rem;
+        }
+
+        .section-heading p {
+            font-size: 0.9rem;
+        }
+
+    .view-all {
+        font-size: 0.86rem;
+    }
+
+    .event-grid {
+        display: flex;
+        overflow-x: auto;
+        gap: 14px;
+        padding: 4px 2px 12px;
+        scroll-snap-type: x mandatory;
+        /* Ẩn thanh cuộn */
+        scrollbar-width: none;
+    }
+
+        .event-grid::-webkit-scrollbar {
+            display: none;
+        }
+
+    .event-card {
+        flex: 0 0 84%;
+        scroll-snap-align: start;
+    }
+
+    .event-image-wrapper {
+        height: 180px;
+    }
+
+    .event-card-body {
+        padding: 16px;
+    }
+
+    .event-card-body {
+        padding: 19px;
+    }
+
+        .event-card-body h3 {
+            min-height: auto;
+            font-size: 1.08rem;
+        }
+
+    .category-section {
+        padding: 65px 20px;
+    }
+
+    .category-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 30px;
+    }
+
+    .category-card {
+        min-height: 155px;
+        padding: 20px 12px;
+        border-radius: 18px;
+    }
+
+    .category-icon {
+        width: 55px;
+        height: 55px;
+        margin-bottom: 12px;
+        border-radius: 16px;
+        font-size: 1.55rem;
+    }
+
+    .category-card strong {
+        font-size: 0.92rem;
+    }
+
+    .category-card small {
+        font-size: 0.73rem;
+    }
+
+    .benefit-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 30px;
+    }
+
+    .benefit-card {
+        padding: 22px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 15px;
+        align-items: center;
+    }
+
+    .benefit-icon {
+        grid-row: span 2;
+        margin-bottom: 0;
+    }
+
+    .benefit-card h3 {
+        margin-bottom: 5px;
+    }
+
+    .benefit-card p {
+        font-size: 0.83rem;
+    }
+
+    .cta-section {
+        margin: 0 15px 35px;
+        border-radius: 24px;
+    }
+
+    .cta-content {
+        padding: 55px 20px;
+    }
+
+        .cta-content h2 {
+            font-size: 2rem;
+        }
+
+        .cta-content button {
+            width: 100%;
+            justify-content: center;
+        }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 430px) {
+
+    .hero-section {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.25rem;
+    }
+
+    .hero-search {
+        display: grid;
+        grid-template-columns: auto 1fr;
+    }
+
+    .search-icon {
+        padding-left: 10px;
+    }
+
+    .hero-search input {
+        width: 100%;
+    }
+
+    .hero-search button {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .section-container,
+    .why-section {
+        width: calc(100% - 32px);
+    }
+
+    .category-section {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .category-grid {
+        gap: 10px;
+    }
+
+    .category-card {
+        min-height: 145px;
+    }
+
+    .event-image-wrapper {
+        height: 200px;
+    }
+
+    .cta-content h2 {
+        font-size: 1.75rem;
+    }
+
+    .event-image-wrapper {
+        height: 100px;
+    }
+
+    .event-card-body {
+        padding: 14px;
+    }
+
+    .event-grid {
+        gap: 14px;
+    }
+
+    .event-card-title {
+        font-size: 1rem;
+        line-height: 1.35;
+        margin-bottom: 10px;
+    }
+
+    .event-card-description {
+        font-size: 0.85rem;
+        line-height: 1.45;
+    }
+
+    .event-card-detail {
+        padding: 9px 12px;
+        font-size: 0.85rem;
+    }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY / REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .ticket-card {
+        animation: none;
+    }
+
+    .event-card,
+    .event-image,
+    .category-card,
+    .benefit-card,
+    .hero-search button,
+    .detail-button,
+    .cta-content button {
+        transition: none;
+    }
+}

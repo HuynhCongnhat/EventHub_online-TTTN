@@ -1,0 +1,183 @@
+﻿@page "/events/{Id:guid}"
+@rendermode InteractiveServer
+
+@using EventHub.Web.Models.Event
+@using EventHub.Web.Services
+
+@inject EventApiService EventApiService
+@inject NavigationManager NavigationManager
+
+<PageTitle>
+    @(eventItem?.Name ?? "Chi tiết sự kiện") - EventHub
+</PageTitle>
+
+<div class="event-detail-page">
+
+    @if (isLoading)
+    {
+        <div class="detail-loading">
+            <div class="spinner"></div>
+            <p>Đang tải thông tin sự kiện...</p>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="detail-error">
+            <div class="error-icon">⚠️</div>
+            <h2>Không tìm thấy sự kiện</h2>
+            <p>@errorMessage</p>
+
+            <button class="back-btn" @onclick="GoBack">
+                ← Quay lại danh sách
+            </button>
+        </div>
+    }
+    else if (eventItem is not null)
+    {
+        <button class="back-link" @onclick="GoBack">
+            ← Quay lại danh sách sự kiện
+        </button>
+
+        <div class="event-detail-card">
+
+            <div class="detail-image-wrapper">
+                @if (!string.IsNullOrWhiteSpace(eventItem.ImageUrl))
+                {
+                    <img src="@eventItem.ImageUrl"
+                         alt="@eventItem.Name"
+                         class="detail-image" />
+                }
+                else
+                {
+                    <div class="detail-image-placeholder">
+                        🎫
+                    </div>
+                }
+
+                <span class="detail-status">
+                    @eventItem.Status
+                </span>
+            </div>
+
+            <div class="detail-content">
+
+                @if (!string.IsNullOrWhiteSpace(eventItem.CategoryName))
+                {
+                    <div class="detail-category">
+                        @eventItem.CategoryName
+                    </div>
+                }
+
+                <h1>@eventItem.Name</h1>
+
+                @if (!string.IsNullOrWhiteSpace(eventItem.Description))
+                {
+                    <p class="detail-description">
+                        @eventItem.Description
+                    </p>
+                }
+
+                <div class="detail-info">
+
+                    <div class="info-item">
+                        <div class="info-icon">📍</div>
+                        <div>
+                            <span class="info-label">Địa điểm</span>
+                            <strong>@eventItem.LocationName</strong>
+
+                            @if (!string.IsNullOrWhiteSpace(eventItem.LocationAddress))
+                            {
+                                <span>@eventItem.LocationAddress</span>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(eventItem.City))
+                            {
+                                <span>@eventItem.City</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">📅</div>
+                        <div>
+                            <span class="info-label">Thời gian bắt đầu</span>
+                            <strong>
+                                @(eventItem.StartDate
+                                .ToLocalTime()
+                                .ToString("dd/MM/yyyy HH:mm"))
+                            </strong>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">⏰</div>
+                        <div>
+                            <span class="info-label">Thời gian kết thúc</span>
+                            <strong>
+                                @(eventItem.EndDate
+                                .ToLocalTime()
+                                .ToString("dd/MM/yyyy HH:mm"))
+                            </strong>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="detail-actions">
+                    <button class="booking-btn" disabled>
+                        🎫 Đặt vé
+                    </button>
+
+                    <span class="booking-note">
+                        Chức năng đặt vé sẽ được phát triển ở bước BookingService.
+                    </span>
+                </div>
+
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private EventDto? eventItem;
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEventAsync();
+    }
+
+    private async Task LoadEventAsync()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = null;
+
+            eventItem = await EventApiService.GetEventByIdAsync(Id);
+
+            if (eventItem is null)
+            {
+                errorMessage = "Sự kiện không tồn tại hoặc đã bị xóa.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            errorMessage = "Không thể kết nối đến EventService.";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/events");
+    }
+}
