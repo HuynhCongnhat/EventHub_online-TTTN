@@ -74,6 +74,26 @@ services:
     ports:
       - "5000:8080"
 
+  bookingservice:
+    build:
+      context: .
+      dockerfile: src/EventHub.BookingService/Dockerfile
+
+    container_name: eventhub-bookingservice
+    restart: unless-stopped
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__BookingDb: "Host=postgres;Port=5432;Database=eventhub_booking;Username=eventhub;Password=eventhub123"
+
+    ports:
+      - "5003:8080"
+
   web:
     build:
       context: .

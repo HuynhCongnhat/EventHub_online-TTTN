@@ -1,8 +1,23 @@
+using EventHub.BookingService.Application.Interfaces;
+using EventHub.BookingService.Application.Services;
+using EventHub.BookingService.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<BookingDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("BookingDb")));
+
+builder.Services.AddScoped<ITicketInventoryService, TicketInventoryService>();
+
+builder.Services.AddHostedService<BookingExpirationService>();
 
 var app = builder.Build();
 
@@ -10,6 +25,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -32,6 +49,10 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+app.UseHttpsRedirection();
+
+app.MapControllers();
 
 app.Run();
 

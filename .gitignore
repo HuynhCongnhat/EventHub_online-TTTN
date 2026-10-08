@@ -34,3 +34,13 @@ docker-data/
 # OS
 Thumbs.db
 .DS_Store
+
+# Publish / local test artifacts
+*.dll
+*.exe
+*.pdb
+*.deps.json
+*.runtimeconfig.json
+*.staticwebassets.endpoints.json
+gateway-publish-test/
+docker-compose.backup.yml
