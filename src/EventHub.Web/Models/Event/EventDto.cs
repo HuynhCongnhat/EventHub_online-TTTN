@@ -10,7 +10,11 @@ public class EventDto
 
     public string? ImageUrl { get; set; }
 
+    public string? VenueMapImageUrl { get; set; }
+
     public Guid CategoryId { get; set; }
+
+    public int LocationCapacity { get; set; }
 
     public string? CategoryName { get; set; }
 

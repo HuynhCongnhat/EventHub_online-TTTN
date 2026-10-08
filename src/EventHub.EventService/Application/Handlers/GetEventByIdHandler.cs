@@ -34,6 +34,7 @@ public class GetEventByIdHandler
             ImageUrl = eventEntity.ImageUrl,
 
             CategoryId = eventEntity.CategoryId,
+            LocationCapacity = eventEntity.Location?.Capacity ?? 0,
             CategoryName = eventEntity.Category?.Name ?? string.Empty,
 
             LocationId = eventEntity.LocationId,

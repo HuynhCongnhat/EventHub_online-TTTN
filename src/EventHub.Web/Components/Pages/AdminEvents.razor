@@ -75,50 +75,305 @@
                            placeholder="https://..." />
                 </div>
 
+                <div class="form-group full">
+                    <label>Sơ đồ sân khấu / khu vực</label>
+                    <input @bind="form.VenueMapImageUrl"
+                           placeholder="ảnh sơ đồ sân khấu/khu vực" />
+
+                    @if (!string.IsNullOrWhiteSpace(form.VenueMapImageUrl))
+                    {
+                        <div class="venue-map-preview">
+                            <img src="@form.VenueMapImageUrl"
+                                 alt="Sơ đồ sân khấu / khu vực" />
+                        </div>
+                    }
+                </div>
+
                 <div class="form-group">
                     <label>Danh mục *</label>
 
-                    <select @bind="form.CategoryId">
-                        <option value="">-- Chọn danh mục --</option>
-
-                        @foreach (var category in categories)
-                        {
-                            <option value="@category.Id">
-                                @category.Name
-                            </option>
-                        }
+                    <select class="form-control" @bind="categoryText">
+                        <option value="Âm nhạc">Âm nhạc</option>
+                        <option value="Workshop">Workshop</option>
+                        <option value="Giải trí">Giải trí</option>
+                        <option value="Thể thao">Thể thao</option>
                     </select>
                 </div>
 
                 <div class="form-group">
                     <label>Địa điểm *</label>
 
-                    <select @bind="form.LocationId">
-                        <option value="">-- Chọn địa điểm --</option>
+                    <input type="text"
+                           class="form-control"
+                           list="location-list"
+                           @bind="locationText"
+                           placeholder="Nhập địa điểm..." />
 
+                    <datalist id="location-list">
                         @foreach (var location in locations)
                         {
-                            <option value="@location.Id">
-                                @location.Name
-                            </option>
+                            <option value="@location.Name"></option>
                         }
-                    </select>
+                    </datalist>
                 </div>
 
                 <div class="form-group">
-                    <label>Bắt đầu *</label>
+                    <label>Địa chỉ *</label>
 
-                    <input type="datetime-local"
-                           value="@startDateText"
-                           @onchange="HandleStartDateChanged"/>
+                    <input type="text"
+                            class="form-control"
+                            @bind="locationAddress"
+                            placeholder="Ví dụ: 01 Nguyễn Tất Thành" />
                 </div>
 
                 <div class="form-group">
-                    <label>Kết thúc *</label>
+                    <label>Thành phố</label>
 
-                    <input type="datetime-local"
-                           value="@endDateText" 
-                           @onchange="HandleEndDateChanged"/>
+                    <input type="text"
+                            class="form-control"
+                            @bind="locationCity"
+                            placeholder="Ví dụ: Quy Nhơn" />
+                </div>
+
+                <div class="form-group">
+                    <label>Sức chứa *</label>
+
+                    <input type="number"
+                            class="form-control"
+                            @bind="locationCapacity"
+                            min="1"
+                            placeholder="Ví dụ: 1000" />
+                </div>
+
+                <div class="form-group">
+                    <label>Thời gian bắt đầu <span>*</span></label>
+
+                    <div class="custom-datetime">
+
+                        <button type="button"
+                                class="datetime-trigger @(startPickerOpen ? "active" : "")"
+                                @onclick="ToggleStartPicker">
+
+                            <span class="datetime-trigger-icon">📅</span>
+
+                            <span class="datetime-trigger-content">
+
+                                <span class="datetime-trigger-value">
+                                    @FormatDateTime(startDateValue)
+                                </span>
+                            </span>
+
+                            <span class="datetime-trigger-arrow">
+                                @(startPickerOpen ? "⌃" : "⌄")
+                            </span>
+
+                        </button>
+
+                        @if (startPickerOpen)
+                        {
+                            <div class="datetime-picker">
+
+                                <div class="picker-header">
+                                    <button type="button"
+                                            @onclick="PreviousStartMonth">
+                                        ‹
+                                    </button>
+
+                                    <strong>
+                                        @GetMonthName(startDateValue)
+                                    </strong>
+
+                                    <button type="button"
+                                            @onclick="NextStartMonth">
+                                        ›
+                                    </button>
+                                </div>
+
+                                <div class="calendar-weekdays">
+                                    <span>T2</span>
+                                    <span>T3</span>
+                                    <span>T4</span>
+                                    <span>T5</span>
+                                    <span>T6</span>
+                                    <span>T7</span>
+                                    <span>CN</span>
+                                </div>
+
+                                <div class="calendar-grid">
+                                    @foreach (var day in GetCalendarDays(startDateValue))
+                                    {
+                                        <button type="button"
+                                                class="calendar-day @(day.Month != startDateValue.Month ? "muted" : "") @(day.Date == startDateValue.Date ? "selected" : "")"
+                                                @onclick="() => SelectStartDate(day)">
+                                            @day.Day
+                                        </button>
+                                    }
+                                </div>
+
+                                <div class="picker-divider"></div>
+
+                                <div class="time-section">
+                                    <span class="time-title">🕐 Thời gian</span>
+
+                                    <div class="time-controls">
+
+                                        <select @bind="startHour">
+                                            @for (var hour = 0; hour < 24; hour++)
+                                            {
+                                                <option value="@hour">
+                                                    @hour.ToString("00")
+                                                </option>
+                                            }
+                                        </select>
+
+                                        <span>:</span>
+
+                                        <select @bind="startMinute">
+                                            @for (var minute = 0; minute < 60; minute += 5)
+                                            {
+                                                <option value="@minute">
+                                                    @minute.ToString("00")
+                                                </option>
+                                            }
+                                        </select>
+
+                                    </div>
+                                </div>
+
+                                <div class="picker-footer">
+                                    <button type="button"
+                                            class="picker-today"
+                                            @onclick="SetStartToday">
+                                        Hôm nay
+                                    </button>
+
+                                    <button type="button"
+                                            class="picker-confirm"
+                                            @onclick="ConfirmStartPicker">
+                                        Xác nhận
+                                    </button>
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label>Thời gian kết thúc <span>*</span></label>
+
+                    <div class="custom-datetime">
+
+                        <button type="button"
+                                class="datetime-trigger @(endPickerOpen ? "active" : "")"
+                                @onclick="ToggleEndPicker">
+
+                            <span class="datetime-trigger-icon">📅</span>
+
+                            <span class="datetime-trigger-content">
+
+                                <span class="datetime-trigger-value">
+                                    @FormatDateTime(endDateValue)
+                                </span>
+                            </span>
+
+                            <span class="datetime-trigger-arrow">
+                                @(endPickerOpen ? "⌃" : "⌄")
+                            </span>
+
+                        </button>
+
+                        @if (endPickerOpen)
+                        {
+                            <div class="datetime-picker">
+
+                                <div class="picker-header">
+                                    <button type="button"
+                                            @onclick="PreviousEndMonth">
+                                        ‹
+                                    </button>
+
+                                    <strong>
+                                        @GetMonthName(endDateValue)
+                                    </strong>
+
+                                    <button type="button"
+                                            @onclick="NextEndMonth">
+                                        ›
+                                    </button>
+                                </div>
+
+                                <div class="calendar-weekdays">
+                                    <span>T2</span>
+                                    <span>T3</span>
+                                    <span>T4</span>
+                                    <span>T5</span>
+                                    <span>T6</span>
+                                    <span>T7</span>
+                                    <span>CN</span>
+                                </div>
+
+                                <div class="calendar-grid">
+                                    @foreach (var day in GetCalendarDays(endDateValue))
+                                    {
+                                        <button type="button"
+                                                class="calendar-day @(day.Month != endDateValue.Month ? "muted" : "") @(day.Date == endDateValue.Date ? "selected" : "")"
+                                                @onclick="() => SelectEndDate(day)">
+                                            @day.Day
+                                        </button>
+                                    }
+                                </div>
+
+                                <div class="picker-divider"></div>
+
+                                <div class="time-section">
+                                    <span class="time-title">🕐 Thời gian</span>
+
+                                    <div class="time-controls">
+
+                                        <select @bind="endHour">
+                                            @for (var hour = 0; hour < 24; hour++)
+                                            {
+                                                <option value="@hour">
+                                                    @hour.ToString("00")
+                                                </option>
+                                            }
+                                        </select>
+
+                                        <span>:</span>
+
+                                        <select @bind="endMinute">
+                                            @for (var minute = 0; minute < 60; minute += 5)
+                                            {
+                                                <option value="@minute">
+                                                    @minute.ToString("00")
+                                                </option>
+                                            }
+                                        </select>
+
+                                    </div>
+                                </div>
+
+                                <div class="picker-footer">
+                                    <button type="button"
+                                            class="picker-today"
+                                            @onclick="SetEndToday">
+                                        Hôm nay
+                                    </button>
+
+                                    <button type="button"
+                                            class="picker-confirm"
+                                            @onclick="ConfirmEndPicker">
+                                        Xác nhận
+                                    </button>
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -305,6 +560,32 @@
 
     private string startDateText = "";
     private string endDateText = "";
+    private string categoryText = string.Empty;
+
+    private string locationText = string.Empty;
+    private string locationAddress = string.Empty;
+    private string locationCity = string.Empty;
+    private int locationCapacity;
+
+    private bool startPickerOpen;
+    private bool endPickerOpen;
+
+    private DateTime startDateValue = DateTime.Now;
+    private DateTime endDateValue = DateTime.Now.AddHours(2);
+
+    private int startHour;
+    private int startMinute;
+
+    private int endHour;
+    private int endMinute;
+
+    private static readonly string[] AllowedCategories =
+        {
+			"Âm nhạc",
+			"Workshop",
+            "Giải trí",
+			"Thể thao"
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -353,11 +634,181 @@
 
         startDateText = "";
         endDateText = "";
+        startDateValue = DateTime.Now;
+        startHour = startDateValue.Hour;
+        startMinute = startDateValue.Minute;
+        endDateValue = DateTime.Now.AddHours(2);
+        endHour = endDateValue.Hour;
+        endMinute = endDateValue.Minute;
+        startPickerOpen = false;
+        endPickerOpen = false;
+
+        categoryText = "";
+
+        locationText = "";
+        locationAddress = "";
+        locationCity = "";
+        locationCapacity = 0;
 
         message = null;
         errorMessage = null;
 
         showForm = true;
+    }
+
+    // dinh dang ngay gio
+    private string FormatDateTime(DateTime value)
+    {
+        return value.ToString("dd/MM/yyyy . HH:mm");
+    }
+
+    //hien thi thang
+    private string GetMonthName(DateTime date)
+    {
+        return date.ToString("MMMM yyyy", new System.Globalization.CultureInfo("vi-VN"));
+    }
+
+    //lay danh sach ngay thang
+    private List<DateTime> GetCalendarDays(DateTime currentDate)
+    {
+        var firstDayOfMonth = new DateTime(currentDate.Year, currentDate.Month, 1);
+
+        // sunday =0 , monday =1
+        //bắt đầu từ thứ 2
+        var offset = ((int)firstDayOfMonth.DayOfWeek + 6) % 7;
+
+        var calendarStart = firstDayOfMonth.AddDays(-offset);
+
+        var days= new List<DateTime>();
+
+        for (var i=0; i<42; i++)
+        {
+            days.Add(calendarStart.AddDays(i));
+        }
+        return days;
+    }
+
+    //sử lý picker
+    private void ToggleStartPicker()
+    {
+        startPickerOpen = !startPickerOpen;
+        endPickerOpen = false;
+
+        if (startPickerOpen){
+            SyncStartPickerValues();
+        }
+    }
+    private void SyncStartPickerValues()
+    {
+        startHour = startDateValue.Hour;
+        startMinute = startDateValue.Minute;
+    }
+    //chuyển tháng trước
+    private void PreviousStartMonth()
+    {
+        startDateValue = startDateValue.AddMonths(-1);
+    }
+    //chuyển tháng sau
+    private void NextStartMonth()
+    {
+        startDateValue = startDateValue.AddMonths(1);
+    }
+    //chọn ngày
+    private void SelectStartDate(DateTime date)
+    {
+        startDateValue = new DateTime(
+            date.Year,
+            date.Month,
+            date.Day,
+            startHour,
+            startMinute,
+            0);
+    }
+    //đặt hôm nay
+    private void SetStartToday()
+    {
+        var now = DateTime.Now;
+        startDateValue = new DateTime(
+            now.Year,
+            now.Month,
+            now.Day,
+            startHour,
+            startMinute,
+            0);
+
+        startHour = startDateValue.Hour;
+        startMinute = startDateValue.Minute;
+    }
+    //xác nhận
+    private void ConfirmStartPicker()
+    {
+        startDateValue = new DateTime(
+            startDateValue.Year,
+            startDateValue.Month,
+            startDateValue.Day,
+            startHour,
+            startMinute,
+            0);
+        startDateText = startDateValue.ToString("yyyy-MM-ddTHH:mm");
+        startPickerOpen = false;
+    }
+    //sử lý picker kết thúc
+    private void ToggleEndPicker()
+    {
+        endPickerOpen = !endPickerOpen;
+        startPickerOpen = false;
+        if (endPickerOpen)
+        {
+            SyncEndPickerValues();
+        }
+    }
+    private void SyncEndPickerValues()
+    {
+        endHour = endDateValue.Hour;
+        endMinute = endDateValue.Minute;
+    }
+    private void PreviousEndMonth()
+    {
+        endDateValue = endDateValue.AddMonths(-1);
+    }
+    private void NextEndMonth()
+    {
+        endDateValue = endDateValue.AddMonths(1);
+    }
+    private void SelectEndDate(DateTime date)
+    {
+        endDateValue = new DateTime(
+            date.Year,
+            date.Month,
+            date.Day,
+            endHour,
+            endMinute,
+            0);
+    }
+    private void SetEndToday()
+    {
+        var now = DateTime.Now;
+        endDateValue = new DateTime(
+            now.Year,
+            now.Month,
+            now.Day,
+            endHour,
+            endMinute,
+            0);
+        endHour = endDateValue.Hour;
+        endMinute = endDateValue.Minute;
+    }
+    private void ConfirmEndPicker()
+    {
+        endDateValue = new DateTime(
+            endDateValue.Year,
+            endDateValue.Month,
+            endDateValue.Day,
+            endHour,
+            endMinute,
+            0);
+        endDateText = endDateValue.ToString("yyyy-MM-ddTHH:mm");
+        endPickerOpen = false;
     }
 
     private async Task EditEventAsync(Guid id)
@@ -382,20 +833,53 @@
                 Name = item.Name,
                 Description = item.Description,
                 ImageUrl = item.ImageUrl,
-                CategoryId = item.CategoryId,
-                LocationId = item.LocationId,
-                StartDate = item.StartDate,
-                EndDate = item.EndDate,
+                VenueMapImageUrl = item.VenueMapImageUrl,
                 Status = item.Status
             };
+
+            categoryText = item.CategoryName ?? string.Empty;
+            locationText = item.LocationName ?? string.Empty;
+
+            var selectedLocation = locations.FirstOrDefault(x =>
+                x.Id == item.LocationId);
+
+            locationAddress =
+                selectedLocation?.Address
+                ?? item.LocationAddress
+                ?? string.Empty;
+
+            locationCity =
+                selectedLocation?.City
+                ?? item.City
+                ?? string.Empty;
+
+            locationCapacity =
+                selectedLocation?.Capacity
+                ?? 0;
 
             startDateText = item.StartDate
                 .ToLocalTime()
                 .ToString("yyyy-MM-ddTHH:mm");
+            if(DateTime.TryParse(startDateText,out var parsedStart))
+            {
+                startDateValue = parsedStart;
+                startHour = parsedStart.Hour;
+                startMinute = parsedStart.Minute;
+
+            }
 
             endDateText = item.EndDate
                 .ToLocalTime()
                 .ToString("yyyy-MM-ddTHH:mm");
+            if(DateTime.TryParse(endDateText,out var parsedEnd))
+            {
+                endDateValue = parsedEnd;
+                endHour = parsedEnd.Hour;
+				endMinute = parsedEnd.Minute;
+            }
+
+            startPickerOpen = false;
+			endPickerOpen = false;
 
             showForm = true;
         }
@@ -406,14 +890,28 @@
         }
     }
 
-    private void HandleStartDateChanged(ChangeEventArgs e)
+    private void HandleLocationChanged(ChangeEventArgs e)
     {
-        startDateText = e.Value?.ToString() ?? string.Empty;
-    }
+        locationText = e.Value?.ToString() ?? string.Empty;
 
-    private void HandleEndDateChanged(ChangeEventArgs e)
-    {
-        endDateText = e.Value?.ToString() ?? string.Empty;
+        var location = locations.FirstOrDefault(x =>
+            string.Equals(
+                x.Name?.Trim(),
+                locationText.Trim(),
+                StringComparison.OrdinalIgnoreCase));
+
+        if (location is not null)
+        {
+            locationAddress = location.Address;
+            locationCity = location.City ?? string.Empty;
+            locationCapacity = location.Capacity;
+        }
+        else
+        {
+            locationAddress = string.Empty;
+            locationCity = string.Empty;
+            locationCapacity = 0;
+        }
     }
 
     private async Task SaveEventAsync()
@@ -429,16 +927,28 @@
                 return;
             }
 
-            if (form.CategoryId == Guid.Empty)
+            if (string.IsNullOrWhiteSpace(categoryText))
             {
                 errorMessage = "Vui lòng chọn danh mục.";
                 return;
             }
 
-            if (form.LocationId == Guid.Empty)
+            if (string.IsNullOrWhiteSpace(locationText))
             {
-                errorMessage = "Vui lòng chọn địa điểm.";
-                return;
+               errorMessage = "Vui lòng nhập địa điểm.";
+               return;
+            }
+
+            if (string.IsNullOrWhiteSpace(locationAddress))
+            {
+              errorMessage = "Vui lòng nhập địa chỉ.";
+              return;
+            }
+
+            if (locationCapacity <= 0)
+            {
+              errorMessage = "Sức chứa phải lớn hơn 0.";
+              return;
             }
 
             if (!DateTime.TryParse(
@@ -476,8 +986,12 @@
                     Name = form.Name,
                     Description = form.Description,
                     ImageUrl = form.ImageUrl,
-                    CategoryId = form.CategoryId,
-                    LocationId = form.LocationId,
+                    VenueMapImageUrl = form.VenueMapImageUrl,
+                    CategoryName = categoryText,
+                    LocationName = locationText,
+                    LocationAddress = locationAddress,
+                    LocationCity = locationCity,
+                    LocationCapacity = locationCapacity,
                     StartDate = form.StartDate,
                     EndDate = form.EndDate,
                     Status = form.Status
@@ -498,6 +1012,11 @@
             }
             else
             {
+                form.CategoryName = categoryText;
+                form.LocationName = locationText;
+                form.LocationAddress = locationAddress;
+                form.LocationCity = locationCity;
+                form.LocationCapacity = locationCapacity;
                 var created =
                     await EventApiService.CreateEventAsync(form);
 
