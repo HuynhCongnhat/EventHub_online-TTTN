@@ -8,9 +8,17 @@ public class UpdateEventRequest
 
     public string? ImageUrl { get; set; }
 
-    public Guid CategoryId { get; set; }
+    public string? VenueMapImageUrl { get; set; }
 
-    public Guid LocationId { get; set; }
+    public string CategoryName { get; set; } = string.Empty;
+
+    public string LocationName { get; set; } = string.Empty;
+
+    public string LocationAddress { get; set; } = string.Empty;
+
+    public string? LocationCity { get; set; }
+
+    public int LocationCapacity { get; set; }
 
     public DateTime StartDate { get; set; }
 

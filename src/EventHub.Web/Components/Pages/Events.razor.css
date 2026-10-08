@@ -44,6 +44,196 @@
     color: #6b7280;
 }
 
+.events-filter {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding: 16px;
+    border: 1px solid #f1f1f1;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 17px;
+    pointer-events: none;
+}
+
+.search-box input {
+    width: 100%;
+    height: 44px;
+    padding: 0 42px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    outline: none;
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .search-box input:focus {
+        border-color: #f87171;
+        box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.12);
+    }
+
+.clear-search {
+    position: absolute;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: #f3f4f6;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+}
+
+    .clear-search:hover {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+.filter-group {
+    display: flex;
+    gap: 10px;
+}
+
+.filter-select {
+    min-width: 190px;
+    height: 44px;
+    padding: 0 36px 0 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: white;
+    color: #374151;
+    outline: none;
+    cursor: pointer;
+}
+
+    .filter-select:focus {
+        border-color: #f87171;
+        box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.12);
+    }
+
+/* =========================================
+   CUSTOM DROPDOWN - EVENTHUB
+   ========================================= */
+
+.custom-dropdown {
+    position: relative;
+    width: 100%;
+    min-width: 155px;
+}
+
+/* Nút chính */
+.custom-dropdown-trigger {
+    width: 100%;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 13px;
+    border: 1px solid #e5dddd;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #333333;
+    font-family: "Roboto", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+    .custom-dropdown-trigger:hover,
+    .custom-dropdown-trigger.active {
+        border-color: #ff4d4f;
+        background: #fffafa;
+    }
+
+    .custom-dropdown-trigger.active {
+        box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.08);
+    }
+
+/* Mũi tên */
+.dropdown-arrow {
+    margin-left: 10px;
+    color: #666;
+    font-size: 16px;
+    transition: transform 0.2s ease;
+}
+
+    .dropdown-arrow.rotate {
+        transform: rotate(180deg);
+    }
+
+/* Menu */
+.custom-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 6px;
+    background: #ffffff;
+    border: 1px solid #f0dddd;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(80, 30, 30, 0.12);
+    animation: dropdownFadeIn 0.15s ease;
+}
+
+/* Item */
+.custom-dropdown-item {
+    width: 100%;
+    display: block;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: #333333;
+    font-family: "Roboto", sans-serif;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+    /* Hover */
+    .custom-dropdown-item:hover {
+        background: #fff0f0;
+        color: #ef4444;
+    }
+
+    /* Đang chọn */
+    .custom-dropdown-item.selected {
+        background: #fff0f0;
+        color: #ef4444;
+        font-weight: 500;
+    }
+
+/* Animation */
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 .events-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -197,20 +387,114 @@
 }
 
 @media (max-width: 600px) {
+
     .events-page {
-        padding: 24px 14px 40px;
+        padding: 20px 10px 40px;
     }
 
     .events-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+        .events-header h1 {
+            font-size: 24px;
+        }
+
+        .events-header p {
+            font-size: 13px;
+        }
+
+    .events-filter {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 12px;
+    }
+
+    .filter-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .custom-dropdown {
+        min-width: 0;
+    }
+
+    .custom-dropdown-trigger {
+        height: 40px;
+        padding: 0 10px;
+        font-size: 13px;
     }
 
     .events-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
     }
 
-    .events-header h1 {
-        font-size: 26px;
+    .event-card {
+        border-radius: 12px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+    }
+
+        .event-card:hover {
+            transform: none;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+    .event-image {
+        height: 115px;
+    }
+
+    .status-badge {
+        top: 7px;
+        right: 7px;
+        padding: 4px 7px;
+        font-size: 9px;
+    }
+
+    .event-content {
+        padding: 10px;
+    }
+
+    .category {
+        font-size: 10px;
+    }
+
+    .event-content h2 {
+        margin: 5px 0 7px;
+        font-size: 15px;
+        line-height: 1.3;
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .description {
+        margin-bottom: 10px;
+        font-size: 11px;
+        line-height: 1.4;
+        -webkit-line-clamp: 2;
+    }
+
+    .event-info {
+        gap: 6px;
+        margin-bottom: 10px;
+        font-size: 11px;
+    }
+
+        .event-info div {
+            gap: 5px;
+        }
+
+    .detail-btn {
+        padding: 8px 9px;
+        border-radius: 8px;
+        font-size: 11px;
     }
 }
