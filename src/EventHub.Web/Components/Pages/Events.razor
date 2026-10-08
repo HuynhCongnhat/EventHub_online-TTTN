@@ -3,6 +3,8 @@
 
 @using EventHub.Web.Models.Event
 @using EventHub.Web.Services
+@using EventHub.Web.Models.Category;
+@using EventHub.Web.Models.Location;
 
 @inject EventApiService EventApiService
 
@@ -39,96 +41,222 @@
             </button>
         </div>
     }
-    else if (events.Count == 0)
-    {
-        <div class="empty-box">
-            <div class="empty-icon">🎫</div>
-
-            <h3>Chưa có sự kiện</h3>
-
-            <p>
-                Hiện tại chưa có sự kiện nào được công bố.
-            </p>
-        </div>
-    }
     else
     {
-        <div class="events-count">
-            Có <strong>@events.Count</strong> sự kiện
+        <!-- FILTER -->
+        <div class="events-filter">
+
+            <div class="search-box">
+                <span class="search-icon">🔎</span>
+
+                <input type="text"
+                       placeholder="Tìm kiếm sự kiện..."
+                       value="@searchText"
+                       @oninput="HandleSearchInput" />
+
+                @if (!string.IsNullOrWhiteSpace(searchText))
+                {
+                    <button class="clear-search"
+                            @onclick="ClearSearch">
+                        ×
+                    </button>
+                }
+            </div>
+
+            <div class="filter-group">
+
+                <div class="custom-dropdown">
+                    <button type="button"
+                            class="custom-dropdown-trigger @(categoryDropdownOpen ? "active" : "")"
+                            @onclick="ToggleCategoryDropdown">
+
+                        <span>
+                            @GetSelectedCategoryName()
+                        </span>
+
+                        <span class="dropdown-arrow @(categoryDropdownOpen ? "rotate" : "")">
+                            ▾
+                        </span>
+                    </button>
+
+                    @if (categoryDropdownOpen)
+                    {
+                        <div class="custom-dropdown-menu">
+
+                            <button type="button"
+                                    class="custom-dropdown-item @(string.IsNullOrEmpty(selectedCategoryId) ? "selected" : "")"
+                                    @onclick="() => SelectCategory(string.Empty)">
+
+                                Tất cả danh mục
+                            </button>
+
+                            @foreach (var category in categories)
+                            {
+                                <button type="button"
+                                        class="custom-dropdown-item @(selectedCategoryId == category.Id.ToString() ? "selected" : "")"
+                                        @onclick="() => SelectCategory(category.Id.ToString())">
+
+                                    @category.Name
+                                </button>
+                            }
+
+                        </div>
+                    }
+                </div>
+
+                <div class="custom-dropdown">
+                    <button type="button"
+                            class="custom-dropdown-trigger @(cityDropdownOpen ? "active" : "")"
+                            @onclick="ToggleCityDropdown">
+
+                        <span>
+                            @GetSelectedCityName()
+                        </span>
+
+                        <span class="dropdown-arrow @(cityDropdownOpen ? "rotate" : "")">
+                            ▾
+                        </span>
+                    </button>
+
+                    @if (cityDropdownOpen)
+                    {
+                        <div class="custom-dropdown-menu">
+
+                            <button type="button"
+                                    class="custom-dropdown-item @(string.IsNullOrEmpty(selectedCity) ? "selected" : "")"
+                                    @onclick="() => SelectCity(string.Empty)">
+
+                                Tất cả thành phố
+                            </button>
+
+                            @foreach (var city in locations
+                                .Where(x => !string.IsNullOrWhiteSpace(x.City))
+                                .Select(x => x.City!)
+                                .Distinct(StringComparer.OrdinalIgnoreCase)
+                                .OrderBy(x => x))
+                            {
+                                <button type="button"
+                                        class="custom-dropdown-item @(string.Equals(selectedCity, city, StringComparison.OrdinalIgnoreCase) ? "selected" : "")"
+                                        @onclick="() => SelectCity(city)">
+
+                                    @city
+                                </button>
+                            }
+
+                        </div>
+                    }
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="events-grid">
+        <div class="events-count">
+            Có <strong>@filteredEvents.Count</strong> sự kiện
+        </div>
 
-            @foreach (var item in events)
-            {
-                <article class="event-card">
+        @if (filteredEvents.Count == 0)
+        {
+            <div class="empty-box">
+                <div class="empty-icon">🔎</div>
 
-                    <div class="event-image">
-                        @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
-                        {
-                            <img src="@item.ImageUrl"
-                                 alt="@item.Name" />
-                        }
-                        else
-                        {
-                            <div class="image-placeholder">
-                                🎫
-                            </div>
-                        }
+                <h3>Không tìm thấy sự kiện</h3>
 
-                        <span class="status-badge">
-                            @item.Status
-                        </span>
-                    </div>
+                <p>
+                    Hãy thử thay đổi từ khóa hoặc bộ lọc.
+                </p>
 
-                    <div class="event-content">
+                <button class="retry-btn"
+                        @onclick="ClearFilters">
+                    Xóa bộ lọc
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="events-grid">
 
-                        <span class="category">
-                            @item.CategoryName
-                        </span>
+                @foreach (var item in filteredEvents)
+                {
+                    <article class="event-card">
 
-                        <h2>@item.Name</h2>
+                        <div class="event-image">
 
-                        @if (!string.IsNullOrWhiteSpace(item.Description))
-                        {
-                            <p class="description">
-                                @item.Description
-                            </p>
-                        }
+                            @if (!string.IsNullOrWhiteSpace(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl"
+                                     alt="@item.Name" />
+                            }
+                            else
+                            {
+                                <div class="image-placeholder">
+                                    🎫
+                                </div>
+                            }
 
-                        <div class="event-info">
-                            <div>
-                                <span>📍</span>
-                                <span>
-                                    @item.LocationName
-                                    @if (!string.IsNullOrWhiteSpace(item.City))
-                                    {
-                                        <text>, @item.City</text>
-                                    }
-                                </span>
-                            </div>
+                            <span class="status-badge">
+                                @item.Status
+                            </span>
 
-                            <div>
-                                <span>📅</span>
-                                <span>
-                                    @(item.StartDate.ToLocalTime()
-                                    .ToString("dd/MM/yyyy HH:mm"))
-                                </span>
-                            </div>
                         </div>
 
-                        <a href="@($"/events/{item.Id}")"
-                               class="detail-btn">
-                            Xem chi tiết
-                            <span>→</span>
-                        </a>
+                        <div class="event-content">
 
-                    </div>
+                            <span class="category">
+                                @item.CategoryName
+                            </span>
 
-                </article>
-            }
+                            <h2>@item.Name</h2>
 
-        </div>
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <p class="description">
+                                    @item.Description
+                                </p>
+                            }
+
+                            <div class="event-info">
+
+                                <div>
+                                    <span>📍</span>
+
+                                    <span>
+                                        @item.LocationName
+
+                                        @if (!string.IsNullOrWhiteSpace(item.City))
+                                        {
+                                            <text>, @item.City</text>
+                                        }
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <span>📅</span>
+
+                                    <span>
+                                        @(item.StartDate.ToLocalTime()
+                                            .ToString("dd/MM/yyyy HH:mm"))
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <a href="@($"/events/{item.Id}")"
+                                   class="detail-btn">
+
+                                Xem chi tiết
+
+                                <span>→</span>
+
+                            </a>
+
+                        </div>
+
+                    </article>
+                }
+
+            </div>
+        }
     }
 
 </div>
@@ -137,27 +265,82 @@
 
     private List<EventDto> events = new();
 
+    private List<EventDto> filteredEvents = new();
+
+    private List<CategoryDto> categories = new()
+    {
+        new CategoryDto
+        {
+            Id = Guid.Parse("2888fa29-2702-427a-932c-45545467b23d"),
+            Name = "Âm nhạc"
+        },
+        new CategoryDto
+        {
+            Id = Guid.Parse("ba01c38b-71b2-47ae-8a34-a341712d56d0"),
+            Name = "Workshop"
+        },
+        new CategoryDto
+        {
+            Id = Guid.Parse("85f038ec-535c-4fbd-9da8-ada853bf5e00"),
+            Name = "Giải trí"
+        },
+        new CategoryDto
+        {
+            Id = Guid.Parse("478037b8-dad6-4820-bd82-2ea0b20b780d"),
+            Name = "Thể thao"
+        }
+    };
+
+    private List<LocationDto> locations = new();
+
     private bool isLoading = true;
 
     private string? errorMessage;
+
+    private string searchText = string.Empty;
+
+    private string selectedCategoryId = string.Empty;
+
+	private bool categoryDropdownOpen;
+
+    private string selectedCity = string.Empty;
+	private bool cityDropdownOpen;
+
+    private CancellationTokenSource? searchCts;
+
 
     protected override async Task OnInitializedAsync()
     {
         await LoadEventsAsync();
     }
 
+
     private async Task LoadEventsAsync()
     {
         try
         {
             isLoading = true;
+
             errorMessage = null;
 
-            events = await EventApiService.GetEventsAsync();
+            var eventsTask = EventApiService.GetEventsAsync();
+
+            var locationsTask = EventApiService.GetLocationsAsync();
+
+            await Task.WhenAll(
+                eventsTask,
+                locationsTask);
+
+            events = await eventsTask;
+
+            locations = await locationsTask;
+
+            ApplyFilters();
         }
         catch (Exception ex)
         {
-            errorMessage = "Đã xảy ra lỗi khi kết nối đến EventService.";
+            errorMessage =
+                "Đã xảy ra lỗi khi kết nối đến EventService.";
 
             Console.WriteLine(ex);
         }
@@ -165,5 +348,211 @@
         {
             isLoading = false;
         }
+    }
+
+
+    private async Task HandleSearchInput(ChangeEventArgs e)
+    {
+        searchText = e.Value?.ToString() ?? string.Empty;
+
+        searchCts?.Cancel();
+
+        searchCts?.Dispose();
+
+        searchCts = new CancellationTokenSource();
+
+        var token = searchCts.Token;
+
+        try
+        {
+            // Debounce 400ms
+            await Task.Delay(400, token);
+
+            ApplyFilters();
+        }
+        catch (TaskCanceledException)
+        {
+            // Người dùng tiếp tục nhập,
+            // bỏ qua lần tìm kiếm trước.
+        }
+    }
+
+
+    private void HandleCategoryChanged(ChangeEventArgs e)
+    {
+        selectedCategoryId = e.Value?.ToString() ?? string.Empty;
+
+        ApplyFilters();
+    }
+
+
+    private void HandleCityChanged(ChangeEventArgs e)
+    {
+        selectedCity = e.Value?.ToString() ?? string.Empty;
+
+        ApplyFilters();
+    }
+
+
+    private void ApplyFilters()
+    {
+        IEnumerable<EventDto> query = events;
+
+        // Chỉ hiển thị Published
+        query = query.Where(x =>
+            string.Equals(
+                x.Status,
+                "Published",
+                StringComparison.OrdinalIgnoreCase));
+
+
+        // SEARCH
+        if (!string.IsNullOrWhiteSpace(searchText))
+        {
+            var keywords = searchText
+                .Trim()
+                .Split(
+                    ' ',
+                    StringSplitOptions.RemoveEmptyEntries |
+                    StringSplitOptions.TrimEntries)
+                .Select(RemoveVietnameseDiacritics)
+                .ToList();
+
+            query = query.Where(x =>
+                keywords.All(keyword =>
+                   {
+                       var searchableText = string.Join(
+                           " ",
+                           x.Name ?? string.Empty,
+                           x.CategoryName ?? string.Empty,
+                           x.LocationName ?? string.Empty,
+                           x.City ?? string.Empty);
+
+                       searchableText = RemoveVietnameseDiacritics(
+                           searchableText);
+
+                       return searchableText.Contains(
+                           keyword,
+                           StringComparison.OrdinalIgnoreCase);
+                   }
+                ));
+        }
+
+
+        // CATEGORY
+        if (Guid.TryParse(
+            selectedCategoryId,
+            out var categoryId))
+        {
+            query = query.Where(x =>
+                x.CategoryId == categoryId);
+        }
+
+
+        // City
+        if (!string.IsNullOrWhiteSpace(selectedCity))
+        {
+            query = query.Where(x => string.Equals(x.City?.Trim(), selectedCity.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+
+        filteredEvents = query
+            .OrderBy(x => x.StartDate)
+            .ToList();
+    }
+
+
+    private void ClearSearch()
+    {
+        searchText = string.Empty;
+
+        ApplyFilters();
+    }
+
+
+    private void ClearFilters()
+    {
+        searchText = string.Empty;
+
+        selectedCategoryId = string.Empty;
+
+        selectedCity = string.Empty;
+
+        ApplyFilters();
+    }
+
+
+    public void Dispose()
+    {
+        searchCts?.Cancel();
+
+        searchCts?.Dispose();
+    }
+
+    private static string RemoveVietnameseDiacritics(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return string.Empty;
+
+        text = text.Normalize(
+            System.Text.NormalizationForm.FormD);
+
+        var chars = text
+            .Where(c =>
+                System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c)
+                != System.Globalization.UnicodeCategory.NonSpacingMark)
+            .ToArray();
+
+        return new string(chars)
+            .Normalize(System.Text.NormalizationForm.FormC)
+            .Replace('đ', 'd')
+            .Replace('Đ', 'D');
+    }
+
+    private void ToggleCategoryDropdown()
+    {
+        categoryDropdownOpen = !categoryDropdownOpen;
+    }
+
+    private void SelectCategory(string categoryId)
+    {
+        selectedCategoryId = categoryId;
+
+        categoryDropdownOpen = false;
+
+        ApplyFilters();
+    }
+
+    private string GetSelectedCategoryName()
+    {
+        if (string.IsNullOrEmpty(selectedCategoryId))
+            return "Tất cả danh mục";
+
+        var category = categories.FirstOrDefault(x =>
+            x.Id.ToString() == selectedCategoryId);
+
+        return category?.Name ?? "Tất cả danh mục";
+    }
+
+    private void ToggleCityDropdown()
+    {
+        cityDropdownOpen = !cityDropdownOpen;
+    }
+
+    private void SelectCity(string city)
+    {
+        selectedCity = city;
+
+        cityDropdownOpen = false;
+
+        ApplyFilters();
+    }
+
+    private string GetSelectedCityName()
+    {
+        if (string.IsNullOrWhiteSpace(selectedCity))
+            return "Tất cả thành phố";
+
+        return selectedCity;
     }
 }

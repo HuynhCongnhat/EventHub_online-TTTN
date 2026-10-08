@@ -415,4 +415,24 @@
             _ => status
         };
     }
+
+    private static string RemoveVietnameseDiacritics(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return string.Empty;
+
+        text = text.Normalize(
+            System.Text.NormalizationForm.FormD);
+
+        var chars = text
+            .Where(c =>
+                System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c)
+                != System.Globalization.UnicodeCategory.NonSpacingMark)
+            .ToArray();
+
+        return new string(chars)
+            .Normalize(System.Text.NormalizationForm.FormC)
+            .Replace('đ', 'd')
+            .Replace('Đ', 'D');
+    }
 }

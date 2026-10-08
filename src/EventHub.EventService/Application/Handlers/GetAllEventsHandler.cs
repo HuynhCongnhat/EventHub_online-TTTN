@@ -28,6 +28,7 @@ public class GetAllEventsHandler
             CategoryId = x.CategoryId,
             CategoryName = x.Category?.Name ?? string.Empty,
             LocationId = x.LocationId,
+            LocationCapacity = x.Location?.Capacity ?? 0,
             LocationName = x.Location?.Name ?? string.Empty,
             LocationAddress = x.Location?.Address ?? string.Empty,
             City = x.Location?.City,

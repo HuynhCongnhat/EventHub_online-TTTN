@@ -78,14 +78,23 @@ public class EventsController : ControllerBase
             Request = request
         };
 
-        var result = await _createEventHandler.HandleAsync(
-            command,
-            cancellationToken);
-
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = result.Id },
-            result);
+        try
+        {
+            var result = await _createEventHandler.HandleAsync(
+                command,
+                cancellationToken);
+            return CreatedAtAction(
+                nameof(GetById),
+                new { id = result.Id },
+                result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message
+            });
+        }
     }
 
     // PUT: api/events/{id}
@@ -101,19 +110,30 @@ public class EventsController : ControllerBase
             Request = request
         };
 
-        var result = await _updateEventHandler.HandleAsync(
+        try
+        {
+            var result = await _updateEventHandler.HandleAsync(
             command,
             cancellationToken);
 
-        if (result == null)
-        {
-            return NotFound(new
+            if (result == null)
             {
-                message = "Không tìm thấy sự kiện."
+                return NotFound(new
+                {
+                    message = "Không tìm thấy sự kiện."
+                });
+            }
+
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message
             });
         }
 
-        return Ok(result);
     }
 
     // DELETE: api/events/{id}

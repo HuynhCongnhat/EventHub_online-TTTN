@@ -121,17 +121,44 @@
                         </div>
                     </div>
 
+                    <div class="info-item">
+                        <div class="info-icon">👥</div>
+                        <div>
+                            <span class="info-label">Sức chứa</span>
+                            <strong>
+                                @eventItem.LocationCapacity người
+                            </strong>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="detail-actions">
                     <button class="booking-btn" disabled>
                         🎫 Đặt vé
                     </button>
-
-                    <span class="booking-note">
-                        Chức năng đặt vé sẽ được phát triển ở bước BookingService.
-                    </span>
                 </div>
+
+                @if (!string.IsNullOrWhiteSpace(eventItem.VenueMapImageUrl))
+                {
+                    <section class="venue-map-section">
+
+                        <div class="venue-map-header">
+                            <span class="venue-map-label">SƠ ĐỒ SỰ KIỆN</span>
+                            <h2>Sơ đồ sân khấu & khu vực</h2>
+                            <p>
+                                Sơ đồ khu vực được cung cấp bởi ban tổ chức sự kiện.
+                            </p>
+                        </div>
+
+                        <div class="venue-map-wrapper">
+                            <img src="@eventItem.VenueMapImageUrl"
+                                 alt="Sơ đồ sân khấu và khu vực - @eventItem.Name"
+                                 class="venue-map-image" />
+                        </div>
+
+                    </section>
+                }
 
             </div>
         </div>
@@ -145,6 +172,7 @@
     private EventDto? eventItem;
     private bool isLoading = true;
     private string? errorMessage;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -180,4 +208,6 @@
     {
         NavigationManager.NavigateTo("/events");
     }
+
+    
 }
