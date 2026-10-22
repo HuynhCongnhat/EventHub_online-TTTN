@@ -5,6 +5,7 @@
 @using EventHub.Web.Models.Event
 @using EventHub.Web.Models.Location
 @using EventHub.Web.Services
+@using EventHub.Web.Models.EventArea;
 
 @inject EventApiService EventApiService
 @inject NavigationManager NavigationManager
@@ -89,6 +90,47 @@
                     }
                 </div>
 
+                <div class="form-group full event-areas-section">
+                    <label>Khu vực vé sự kiện</label>
+
+                    <p>Thêm các khu vực và sức chứa tương ứng.</p>
+
+                    @foreach (var area in eventAreas)
+                    {
+                        <div class="event-area-row" @key="area">
+                            <input type="text"
+                                   @bind="area.Name"
+                                   placeholder="Tên khu vực (VD: VIP)" />
+
+                            <input type="number"
+                                   @bind="area.Capacity"
+                                   min="1"
+                                   placeholder="Sức chứa" />
+
+                            <input type="text"
+                                   @bind="area.Description"
+                                   placeholder="Mô tả khu vực" />
+
+                            <button type="button"
+                                    class="delete-btn"
+                                    @onclick="() => RemoveEventArea(area)">
+                                Xóa
+                            </button>
+                        </div>
+                    }
+
+                    <button type="button"
+                            class="add-btn"
+                            @onclick="AddEventArea">
+                        + Thêm khu vực
+                    </button>
+
+                    <div class="event-area-total">
+                        Tổng sức chứa khu vực:
+                        <strong>@TotalAreaCapacity.ToString("N0")</strong>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Danh mục *</label>
 
@@ -143,6 +185,19 @@
                             @bind="locationCapacity"
                             min="1"
                             placeholder="Ví dụ: 1000" />
+                    @if (locationCapacity != TotalAreaCapacity)
+                    {
+                        <p class="text-danger">
+                            Sức chứa chưa khớp. Tổng sức chứa khu vực:
+                            @TotalAreaCapacity.ToString("N0")
+                        </p>
+                    }
+                    else
+                    {
+                        <p class="text-success">
+                            Sức chứa đã khớp với tổng sức chứa khu vực.
+                        </p>
+                    }
                 </div>
 
                 <div class="form-group">
@@ -546,6 +601,7 @@
     private List<EventDto> events = new();
     private List<CategoryDto> categories = new();
     private List<LocationDto> locations = new();
+    private List<CreateEventAreaRequest> eventAreas = new();
 
     private bool isLoading = true;
     private bool isSaving;
@@ -652,10 +708,28 @@
 
         message = null;
         errorMessage = null;
+        eventAreas.Clear();
 
         showForm = true;
     }
 
+    //areas
+    private int TotalAreaCapacity => eventAreas.Sum(x => Math.Max(0, x.Capacity));
+
+    private void AddEventArea()
+    {
+        eventAreas.Add(new CreateEventAreaRequest
+        {
+            Name = "",
+            Capacity = 1,
+            Description = ""
+        });
+    }
+
+    private void RemoveEventArea(CreateEventAreaRequest area)
+    {
+        eventAreas.Remove(area);
+    }
     // dinh dang ngay gio
     private string FormatDateTime(DateTime value)
     {
@@ -828,6 +902,13 @@
 
             editingId = id;
 
+            eventAreas = (await EventApiService.GetEventAreasAsync(id)).Select(x => new CreateEventAreaRequest
+            {
+                Name = x.Name,
+                Capacity = x.Capacity,
+                Description = x.Description
+            }).ToList();
+
             form = new CreateEventRequest
             {
                 Name = item.Name,
@@ -875,11 +956,11 @@
             {
                 endDateValue = parsedEnd;
                 endHour = parsedEnd.Hour;
-				endMinute = parsedEnd.Minute;
+                endMinute = parsedEnd.Minute;
             }
 
             startPickerOpen = false;
-			endPickerOpen = false;
+            endPickerOpen = false;
 
             showForm = true;
         }
@@ -935,21 +1016,37 @@
 
             if (string.IsNullOrWhiteSpace(locationText))
             {
-               errorMessage = "Vui lòng nhập địa điểm.";
-               return;
+                errorMessage = "Vui lòng nhập địa điểm.";
+                return;
             }
 
             if (string.IsNullOrWhiteSpace(locationAddress))
             {
-              errorMessage = "Vui lòng nhập địa chỉ.";
-              return;
+                errorMessage = "Vui lòng nhập địa chỉ.";
+                return;
             }
 
-            if (locationCapacity <= 0)
+            
+            if (eventAreas.Count == 0)
             {
-              errorMessage = "Sức chứa phải lớn hơn 0.";
-              return;
+                errorMessage = "Vui lòng thêm ít nhất một khu vực vé.";
+                return;
             }
+
+            if (eventAreas.Any(x =>
+                    string.IsNullOrWhiteSpace(x.Name) || x.Capacity <= 0))
+            {
+                errorMessage = "Tên khu vực không được để trống và sức chứa phải lớn hơn 0.";
+                return;
+            }
+
+            if (locationCapacity != TotalAreaCapacity)
+            {
+                errorMessage =
+                    $"Sức chứa địa điểm phải bằng tổng sức chứa khu vực ({TotalAreaCapacity:N0}).";
+                return;
+            }
+
 
             if (!DateTime.TryParse(
                     startDateText,
@@ -997,6 +1094,13 @@
                     Status = form.Status
                 };
 
+                var areasSeved = await EventApiService.SaveEventAreasAsync(editingId.Value, eventAreas);
+
+                if (!areasSeved)
+                {
+                    errorMessage = "Sự kiện đã cập nhật khu vực nhưng không thể lưu khu vực";
+                    return;
+                }
                 var success =
                     await EventApiService.UpdateEventAsync(
                         editingId.Value,
@@ -1024,6 +1128,13 @@
                 {
                     errorMessage = "Không thể tạo sự kiện.";
                     return;
+                }
+
+                var areasSaved = await EventApiService.SaveEventAreasAsync(created.Id, eventAreas);
+
+                if (!areasSaved)
+                {
+                    errorMessage = "Sự kiện đã tạo nhưng không thể lưu khu vực.";
                 }
 
                 message = "Tạo sự kiện thành công.";

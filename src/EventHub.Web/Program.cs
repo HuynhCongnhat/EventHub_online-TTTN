@@ -21,10 +21,14 @@ builder.Services.AddHttpClient("AuthService", client =>
 }
 );
 
-// dang ky authApi
+// dang ky Api
 builder.Services.AddScoped<AuthApiService>();
 
 builder.Services.AddScoped<EventApiService>();
+
+builder.Services.AddScoped<SeatBookingApiService>();
+
+builder.Services.AddScoped<SeatRealtimeService>();
 
 // dang ky authService
 builder.Services.AddScoped<AuthSessionService>();

@@ -1,4 +1,5 @@
-﻿using EventHub.BookingService.Domain.Enums;
+﻿using EventHub.BookingService.Application.DTOs;
+using EventHub.BookingService.Domain.Enums;
 using EventHub.BookingService.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,9 +42,17 @@ public class BookingExpirationService : BackgroundService
                     "Lỗi khi xử lý booking hết hạn.");
             }
 
-            await Task.Delay(
-                TimeSpan.FromSeconds(30),
-                stoppingToken);
+            try
+            {
+                await Task.Delay(
+                    TimeSpan.FromSeconds(30),
+                    stoppingToken);
+            }
+            catch (OperationCanceledException)
+                when (stoppingToken.IsCancellationRequested)
+            {
+                break;
+            }
         }
 
         _logger.LogInformation(
@@ -58,19 +67,20 @@ public class BookingExpirationService : BackgroundService
         var dbContext = scope.ServiceProvider
             .GetRequiredService<BookingDbContext>();
 
+        var notifier = scope.ServiceProvider
+            .GetRequiredService<SeatRealtimeNotifier>();
+
         var now = DateTime.UtcNow;
 
-        var expiredOrders = await dbContext.BookingOrders
-            .Include(x => x.Items)
+        var expiredOrderIds = await dbContext.BookingOrders
+            .AsNoTracking()
             .Where(x =>
                 x.Status == BookingOrderStatus.Pending &&
                 x.ExpiresAt <= now)
+            .Select(x => x.Id)
             .ToListAsync(cancellationToken);
 
-        if (expiredOrders.Count == 0)
-            return;
-
-        foreach (var order in expiredOrders)
+        foreach (var orderId in expiredOrderIds)
         {
             await using var transaction =
                 await dbContext.Database.BeginTransactionAsync(
@@ -81,20 +91,20 @@ public class BookingExpirationService : BackgroundService
                 var currentOrder = await dbContext.BookingOrders
                     .Include(x => x.Items)
                     .SingleOrDefaultAsync(
-                        x => x.Id == order.Id,
+                        x => x.Id == orderId,
                         cancellationToken);
 
-                if (currentOrder is null)
-                    continue;
-
-                if (currentOrder.Status != BookingOrderStatus.Pending ||
-                    currentOrder.ExpiresAt > now)
+                if (currentOrder is null ||
+                    currentOrder.Status != BookingOrderStatus.Pending ||
+                    currentOrder.ExpiresAt > DateTime.UtcNow)
                 {
                     await transaction.RollbackAsync(
                         cancellationToken);
 
                     continue;
                 }
+
+                var nowExpired = DateTime.UtcNow;
 
                 foreach (var item in currentOrder.Items)
                 {
@@ -106,16 +116,29 @@ public class BookingExpirationService : BackgroundService
                     if (ticket is null)
                         continue;
 
-                    ticket.HeldQuantity =
-                        Math.Max(
-                            0,
-                            ticket.HeldQuantity - item.Quantity);
+                    ticket.HeldQuantity = Math.Max(
+                        0,
+                        ticket.HeldQuantity - item.Quantity);
 
-                    ticket.UpdatedAt = now;
+                    ticket.UpdatedAt = nowExpired;
+                }
+
+                var heldSeats = await dbContext.BookingSeats
+                    .Where(x =>
+                        x.BookingOrderId == currentOrder.Id &&
+                        x.Status == BookingSeatStatus.Held)
+                    .ToListAsync(cancellationToken);
+
+                foreach (var seat in heldSeats)
+                {
+                    seat.Status = BookingSeatStatus.Available;
+                    seat.BookingOrderId = null;
+                    seat.HeldUntil = null;
+                    seat.UpdatedAt = nowExpired;
                 }
 
                 currentOrder.Status = BookingOrderStatus.Expired;
-                currentOrder.UpdatedAt = now;
+                currentOrder.UpdatedAt = nowExpired;
 
                 await dbContext.SaveChangesAsync(
                     cancellationToken);
@@ -124,8 +147,39 @@ public class BookingExpirationService : BackgroundService
                     cancellationToken);
 
                 _logger.LogInformation(
-                    "Booking {OrderCode} đã hết hạn. Đã trả lại vé.",
-                    currentOrder.OrderCode);
+                    "Booking {OrderCode} hết hạn. Đã trả lại vé và giải phóng {SeatCount} ghế.",
+                    currentOrder.OrderCode,
+                    heldSeats.Count);
+
+                foreach (var seat in heldSeats)
+                {
+                    try
+                    {
+                        var seatDto = new SeatStatusChangedDto
+                        {
+                            EventId = seat.EventId,
+                            SeatId = seat.Id,
+                            SeatCode = seat.SeatCode,
+                            Status = BookingSeatStatus.Available.ToString(),
+                            BookingOrderId = null,
+                            OrderCode = currentOrder.OrderCode,
+                            HeldUntil = null,
+                            UpdatedAt = seat.UpdatedAt ?? nowExpired
+                        };
+
+                        await notifier.NotifiSeatStatusChangedAsync(
+                            seatDto,
+                            cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(
+                            ex,
+                            "Không thể phát SignalR cho ghế {SeatCode} sau khi booking {OrderCode} hết hạn.",
+                            seat.SeatCode,
+                            currentOrder.OrderCode);
+                    }
+                }
             }
             catch
             {

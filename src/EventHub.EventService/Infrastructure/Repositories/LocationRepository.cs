@@ -44,7 +44,15 @@ public class LocationRepository : ILocationRepository
         Location entity,
         CancellationToken cancellationToken = default)
     {
-        _context.Locations.Update(entity);
+        var existingLocation = await _context.Locations.FirstOrDefaultAsync(x=> x.Id == entity.Id, cancellationToken);
+
+        if (existingLocation is null)
+        {
+            throw new InvalidOperationException($"Không tìm thấy địa điểm có {entity.Id}.");
+        }
+
+
+        _context.Entry(existingLocation).CurrentValues.SetValues(entity);
         await _context.SaveChangesAsync(cancellationToken);
     }
 

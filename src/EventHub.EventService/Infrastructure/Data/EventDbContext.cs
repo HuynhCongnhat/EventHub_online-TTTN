@@ -19,6 +19,8 @@ namespace EventHub.EventService.Infrastructure.Data
 
         public DbSet<Schedule> Schedules => Set<Schedule>();
 
+        public DbSet<EventArea> EventAreas => Set<EventArea>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -78,6 +80,28 @@ namespace EventHub.EventService.Infrastructure.Data
 
                 entity.HasIndex(x => x.EventId);
                 entity.HasIndex(x => x.StartTime);
+            });
+
+            modelBuilder.Entity<EventArea>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(x => x.Capacity)
+                    .IsRequired();
+
+                entity.Property(x => x.Description)
+                    .HasMaxLength(1000);
+
+                entity.HasOne(x => x.Event)
+                    .WithMany(x => x.Areas)
+                    .HasForeignKey(x => x.EventId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(x => x.EventId);
             });
         }
     }

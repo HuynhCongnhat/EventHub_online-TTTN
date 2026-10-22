@@ -1,0 +1,137 @@
+[1mdiff --git a/.gitignore b/.gitignore[m
+[1mindex 933be0d..1f09c29 100644[m
+[1m--- a/.gitignore[m
+[1m+++ b/.gitignore[m
+[36m@@ -43,4 +43,9 @@[m [mThumbs.db[m
+ *.runtimeconfig.json[m
+ *.staticwebassets.endpoints.json[m
+ gateway-publish-test/[m
+[31m-docker-compose.backup.yml[m
+\ No newline at end of file[m
+[32m+[m[32mdocker-compose.backup.yml[m
+[32m+[m
+[32m+[m[32m# Secrets[m
+[32m+[m[32m.env[m
+[32m+[m[32m.env.*[m
+[32m+[m[32m!.env.example[m
+\ No newline at end of file[m
+[1mdiff --git a/docker-compose.yml b/docker-compose.yml[m
+[1mindex 130af4b..de23c28 100644[m
+[1m--- a/docker-compose.yml[m
+[1m+++ b/docker-compose.yml[m
+[36m@@ -57,8 +57,16 @@[m [mservices:[m
+       ASPNETCORE_ENVIRONMENT: Development[m
+       ASPNETCORE_URLS: http://+:8080[m
+       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=eventhub_event;Username=eventhub;Password=eventhub123"[m
+[32m+[m[32m      Gemini__ApiKey: ${GEMINI_API_KEY:?GEMINI_API_KEY is required}[m
+[32m+[m[32m      Jwt__Key: ${JWT_KEY:?JWT_KEY is required}[m
+[32m+[m[32m      Jwt__Issuer: ${JWT_ISSUER:?JWT_ISSUER is required}[m
+[32m+[m[32m      Jwt__Audience: ${JWT_AUDIENCE:?JWT_AUDIENCE is required}[m
+[32m+[m[32m      VenueMapStorage__Path: /app/uploads/venue-maps[m
+     ports:[m
+       - "5002:8080"[m
+[32m+[m[32m    volumes:[m
+[32m+[m[32m      - eventhub_venue_maps:/app/uploads/venue-maps[m
+[32m+[m
+ [m
+   apigateway:[m
+     build:[m
+[36m@@ -70,6 +78,8 @@[m [mservices:[m
+ [m
+     depends_on:[m
+       - authservice[m
+[32m+[m[32m      - bookingservice[m
+[32m+[m[32m      - eventservice[m
+ [m
+     ports:[m
+       - "5000:8080"[m
+[36m@@ -117,4 +127,5 @@[m [mservices:[m
+       - web[m
+ [m
+ volumes:[m
+[31m-  postgres_data:[m
+\ No newline at end of file[m
+[32m+[m[32m  postgres_data:[m
+[32m+[m[32m  eventhub_venue_maps:[m
+\ No newline at end of file[m
+[1mdiff --git a/src/EventHub.ApiGateway/appsettings.json b/src/EventHub.ApiGateway/appsettings.json[m
+[1mindex f4a03ba..0d79224 100644[m
+[1m--- a/src/EventHub.ApiGateway/appsettings.json[m
+[1m+++ b/src/EventHub.ApiGateway/appsettings.json[m
+[36m@@ -23,6 +23,21 @@[m
+         }[m
+       },[m
+ [m
+[32m+[m
+[32m+[m[32m      "venue-map-route": {[m
+[32m+[m[32m        "ClusterId": "event-cluster",[m
+[32m+[m[32m        "Match": {[m
+[32m+[m[32m          "Path": "/api/venue-maps/{**catch-all}"[m
+[32m+[m[32m        }[m
+[32m+[m[32m      },[m
+[32m+[m
+[32m+[m[32m      "venue-map-ai-route": {[m
+[32m+[m[32m        "ClusterId": "event-cluster",[m
+[32m+[m[32m        "Match": {[m
+[32m+[m[32m          "Path": "/api/venue-map-ai/{**catch-all}"[m
+[32m+[m[32m        }[m
+[32m+[m[32m      },[m
+[32m+[m
+       "category-route": {[m
+         "ClusterId": "event-cluster",[m
+         "Match": {[m
+[36m@@ -42,6 +57,25 @@[m
+         "Match": {[m
+           "Path": "/api/schedules/{**catch-all}"[m
+         }[m
+[32m+[m[32m      },[m
+[32m+[m
+[32m+[m[32m      "booking-route": {[m
+[32m+[m[32m        "ClusterId": "booking-cluster",[m
+[32m+[m[32m        "Match": {[m
+[32m+[m[32m          "Path": "/api/seats/{**catch-all}"[m
+[32m+[m[32m        }[m
+[32m+[m[32m      },[m
+[32m+[m[32m      "booking-hub-route": {[m
+[32m+[m[32m        "ClusterId": "booking-cluster",[m
+[32m+[m[32m        "Match": {[m
+[32m+[m[32m          "Path": "/hubs/bookingHub/{**catch-all}"[m
+[32m+[m[32m        },[m
+[32m+[m[32m        "Transforms": [[m
+[32m+[m[32m          {[m
+[32m+[m[32m            "RequestHeader": "Connection",[m
+[32m+[m[32m            "Set": "Upgrade"[m
+[32m+[m[32m          }[m
+[32m+[m[32m        ][m
+       }[m
+     },[m
+ [m
+[36m@@ -60,6 +94,14 @@[m
+             "Address": "http://eventservice:8080/"[m
+           }[m
+         }[m
+[32m+[m[32m      },[m
+[32m+[m
+[32m+[m[32m      "booking-cluster": {[m
+[32m+[m[32m        "Destinations": {[m
+[32m+[m[32m          "booking-destination": {[m
+[32m+[m[32m            "Address": "http://bookingservice:8080/"[m
+[32m+[m[32m          }[m
+[32m+[m[32m        }[m
+       }[m
+     }[m
+   }[m
+[1mdiff --git a/src/EventHub.EventService/appsettings.json b/src/EventHub.EventService/appsettings.json[m
+[1mindex 10f68b8..dce6ede 100644[m
+[1m--- a/src/EventHub.EventService/appsettings.json[m
+[1m+++ b/src/EventHub.EventService/appsettings.json[m
+[36m@@ -1,4 +1,9 @@[m
+ {[m
+[32m+[m[32m  "Gemini": {[m
+[32m+[m[32m    "AllowedImageHosts": [[m
+[32m+[m[32m      "images.example.com"[m
+[32m+[m[32m    ][m
+[32m+[m[32m  },[m
+   "Logging": {[m
+     "LogLevel": {[m
+       "Default": "Information",[m

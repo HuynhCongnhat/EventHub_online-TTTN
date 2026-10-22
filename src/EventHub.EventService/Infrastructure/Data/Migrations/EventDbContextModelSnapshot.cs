@@ -104,6 +104,37 @@ namespace EventHub.EventService.Infrastructure.Data.Migrations
                     b.ToTable("Events");
                 });
 
+            modelBuilder.Entity("EventHub.EventService.Domain.Entities.EventArea", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("EventAreas");
+                });
+
             modelBuilder.Entity("EventHub.EventService.Domain.Entities.Location", b =>
                 {
                     b.Property<Guid>("Id")
@@ -185,6 +216,17 @@ namespace EventHub.EventService.Infrastructure.Data.Migrations
                     b.Navigation("Location");
                 });
 
+            modelBuilder.Entity("EventHub.EventService.Domain.Entities.EventArea", b =>
+                {
+                    b.HasOne("EventHub.EventService.Domain.Entities.Event", "Event")
+                        .WithMany("Areas")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+                });
+
             modelBuilder.Entity("EventHub.EventService.Domain.Entities.Schedule", b =>
                 {
                     b.HasOne("EventHub.EventService.Domain.Entities.Event", "Event")
@@ -203,6 +245,8 @@ namespace EventHub.EventService.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("EventHub.EventService.Domain.Entities.Event", b =>
                 {
+                    b.Navigation("Areas");
+
                     b.Navigation("Schedules");
                 });
 

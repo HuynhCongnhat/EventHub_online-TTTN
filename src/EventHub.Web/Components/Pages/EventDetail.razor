@@ -3,9 +3,13 @@
 
 @using EventHub.Web.Models.Event
 @using EventHub.Web.Services
+@using EventHub.Web.Models.Booking
 
 @inject EventApiService EventApiService
 @inject NavigationManager NavigationManager
+@inject SeatBookingApiService SeatBookingApiService
+@inject SeatRealtimeService SeatRealtimeService
+@inject AuthSessionService AuthSessionService
 
 <PageTitle>
     @(eventItem?.Name ?? "Chi tiết sự kiện") - EventHub
@@ -134,10 +138,12 @@
                 </div>
 
                 <div class="detail-actions">
-                    <button class="booking-btn" disabled>
+                    <button class="booking-btn" @onclick="GoToBooking">
                         🎫 Đặt vé
                     </button>
                 </div>
+
+                
 
                 @if (!string.IsNullOrWhiteSpace(eventItem.VenueMapImageUrl))
                 {
@@ -173,6 +179,8 @@
     private bool isLoading = true;
     private string? errorMessage;
 
+    private List<SeatStatusChangedDto> seats = new(); 
+    private SeatStatusChangedDto? selectedSeat;
 
     protected override async Task OnInitializedAsync()
     {
@@ -209,5 +217,19 @@
         NavigationManager.NavigateTo("/events");
     }
 
-    
+    private async Task GoToBooking()
+    {
+        var user = await AuthSessionService.GetUserAsync();
+
+        var bookingUrl = $"/booking/{Id}";
+
+        if (user is null || user.UserId == Guid.Empty)
+        {
+            var returnUrl = Uri.EscapeDataString(bookingUrl);
+            NavigationManager.NavigateTo($"/login?returnUrl={returnUrl}");
+            return;
+        }
+
+        NavigationManager.NavigateTo(bookingUrl);
+    }
 }

@@ -57,8 +57,16 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=eventhub_event;Username=eventhub;Password=eventhub123"
+      Gemini__ApiKey: ${GEMINI_API_KEY:?GEMINI_API_KEY is required}
+      Jwt__Key: ${JWT_KEY:?JWT_KEY is required}
+      Jwt__Issuer: ${JWT_ISSUER:?JWT_ISSUER is required}
+      Jwt__Audience: ${JWT_AUDIENCE:?JWT_AUDIENCE is required}
+      VenueMapStorage__Path: /app/uploads/venue-maps
     ports:
       - "5002:8080"
+    volumes:
+      - eventhub_venue_maps:/app/uploads/venue-maps
+
 
   apigateway:
     build:
@@ -70,6 +78,8 @@ services:
 
     depends_on:
       - authservice
+      - bookingservice
+      - eventservice
 
     ports:
       - "5000:8080"
@@ -118,3 +128,4 @@ services:
 
 volumes:
   postgres_data:
+  eventhub_venue_maps:

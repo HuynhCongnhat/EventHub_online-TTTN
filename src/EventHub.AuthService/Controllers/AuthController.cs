@@ -635,23 +635,23 @@ public class AuthController : ControllerBase
 
     // GET CURRENT USER
 
-    [Authorize]
-    [HttpGet("me")]
-    public IActionResult GetCurrentUser()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var email = User.FindFirstValue(ClaimTypes.Email);
-        var fullName = User.FindFirstValue(ClaimTypes.Name);
-        var role = User.FindFirstValue(ClaimTypes.Role);
+    //[Authorize]
+    //[HttpGet("me")]
+    //public IActionResult GetCurrentUser()
+    //{
+    //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    //    var email = User.FindFirstValue(ClaimTypes.Email);
+    //    var fullName = User.FindFirstValue(ClaimTypes.Name);
+    //    var role = User.FindFirstValue(ClaimTypes.Role);
 
-        return Ok(new
-        {
-            userId,
-            email,
-            fullName,
-            role
-        });
-    }
+    //    return Ok(new
+    //    {
+    //        userId,
+    //        email,
+    //        fullName,
+    //        role
+    //    });
+    //}
 
     //Generate JWT token
     private string GenerateJwtToken(User user)

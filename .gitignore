@@ -44,3 +44,8 @@ Thumbs.db
 *.staticwebassets.endpoints.json
 gateway-publish-test/
 docker-compose.backup.yml
+
+# Secrets
+.env
+.env.*
+!.env.example

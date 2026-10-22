@@ -31,5 +31,7 @@
         public DateTime? UpdatedAt { get; set; }
 
         public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+
+        public ICollection<EventArea> Areas { get; set; } = new List<EventArea>();
     }
 }

@@ -3,6 +3,7 @@
 
 @using EventHub.Web.Models.Auth
 @using EventHub.Web.Services
+@using Microsoft.AspNetCore.WebUtilities
 @inject AuthApiService AuthApi
 @inject AuthSessionService AuthSession
 @inject CustomAuthenticationStateProvider AuthStateProvider
@@ -90,6 +91,9 @@
 </div>
 
 @code {
+    
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    private string? ReturnUrl { get; set; }
 
     private LoginModel loginModel = new();
 
@@ -129,7 +133,17 @@
 
             successMessage = "Đăng nhập thành công!";
 
-            Navigation.NavigateTo("/");
+            var destination = "/";
+
+            if (!string.IsNullOrWhiteSpace(ReturnUrl) &&
+                ReturnUrl.StartsWith("/", StringComparison.Ordinal) &&
+                !ReturnUrl.StartsWith("//", StringComparison.Ordinal) &&
+                !ReturnUrl.StartsWith("/\\", StringComparison.Ordinal))
+            {
+                destination = ReturnUrl;
+            }
+
+            Navigation.NavigateTo(destination);
         }
         else
         {

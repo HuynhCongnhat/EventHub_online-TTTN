@@ -1,0 +1,537 @@
+﻿@page "/booking/{Id:guid}"
+@rendermode InteractiveServer
+@implements IAsyncDisposable
+
+@using EventHub.Web.Models.Event
+@using EventHub.Web.Models.Booking
+@using EventHub.Web.Services
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject EventApiService EventApiService
+@inject SeatBookingApiService SeatBookingApiService
+@inject SeatRealtimeService SeatRealtimeService
+@inject AuthSessionService AuthSessionService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Đặt vé - EventHub</PageTitle>
+
+<div class="booking-page">
+    <button class="back-link" @onclick="GoToEventDetail">
+        ← Quay lại chi tiết sự kiện
+    </button>
+
+    @if (isLoadingEvent)
+    {
+        <p>Đang tải thông tin sự kiện...</p>
+    }
+    else if (eventItem is null)
+    {
+        <div class="booking-message error">
+            Không tìm thấy sự kiện hoặc không thể tải thông tin sự kiện.
+        </div>
+    }
+    else
+    {
+        <header class="booking-header">
+            <div>
+                <span class="booking-eyebrow">EVENTHUB TICKETING</span>
+                <h1>Đặt vé sự kiện</h1>
+                <h2>@eventItem.Name</h2>
+                <p>
+                    📍 @eventItem.LocationName
+                    @if (!string.IsNullOrWhiteSpace(eventItem.City))
+                    {
+                        <span> · @eventItem.City</span>
+                    }
+                </p>
+                <p>📅 @eventItem.StartDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+        </header>
+
+        <section class="seat-selection-section">
+            <div class="seat-section-heading">
+                <div>
+                    <h2>Chọn vị trí ghế</h2>
+                    <p>Chọn một ghế đang trống để bắt đầu giữ chỗ.</p>
+                </div>
+
+                <button class="seat-refresh-btn"
+                        @onclick="RefreshSeatsAsync"
+                        disabled="@isLoadingSeats">
+                    ↻ Làm mới
+                </button>
+            </div>
+
+            <div class="seat-legend">
+                <span><i class="seat-dot available"></i> Trống</span>
+                <span><i class="seat-dot held"></i> Đang giữ</span>
+                <span><i class="seat-dot sold"></i> Đã bán</span>
+                <span><i class="seat-dot selected"></i> Đang chọn</span>
+            </div>
+
+            <div class="seat-screen">MÀN HÌNH / SÂN KHẤU</div>
+
+            @if (isLoadingSeats && seats.Count == 0)
+            {
+                <p class="seat-message">Đang tải sơ đồ ghế...</p>
+            }
+            else if (seats.Count == 0)
+            {
+                <p class="seat-message">@seatMessage</p>
+            }
+            else
+            {
+                <div class="seat-grid">
+                    @foreach (var seat in seats.OrderBy(s => s.SeatCode))
+                    {
+                        <button @key="seat.SeatId"
+                                type="button"
+                                class="seat-button @GetSeatCssClass(seat)"
+                                disabled="@(!CanSelectSeat(seat) || isHoldingSeat || isReleasingSeat)"
+                                title="@($"{seat.SeatCode} - {seat.Status}")"
+                                @onclick="() => SelectSeat(seat)">
+                            @seat.SeatCode
+                        </button>
+                    }
+                </div>
+            }
+
+            <p class="seat-message">@seatMessage</p>
+
+            <div class="realtime-status">
+                <span class="realtime-indicator @(isRealtimeConnected ? "connected" : "disconnected")"></span>
+                @(isRealtimeConnected ? "Đang cập nhật trạng thái trực tiếp" : "Chưa kết nối realtime")
+            </div>
+
+            @if (selectedSeat is not null)
+            {
+                <div class="selected-seat-panel">
+                    <div>
+                        <span>Ghế đang chọn</span>
+                        <h3>@selectedSeat.SeatCode</h3>
+                    </div>
+
+                    <button class="booking-btn"
+                            @onclick="HoldSelectedSeatAsync"
+                            disabled="@(!isRealtimeConnected || isHoldingSeat)">
+                        @(isHoldingSeat ? "Đang giữ ghế..." : "Giữ ghế")
+                    </button>
+                </div>
+            }
+
+            @if (myHeldSeat is not null)
+            {
+                <div class="my-held-seat-panel">
+                    <div>
+                        <strong>Bạn đang giữ ghế @myHeldSeat.SeatCode</strong>
+                        <p>Thời gian giữ chỗ có giới hạn. Hãy tiếp tục quy trình đặt vé.</p>
+                    </div>
+
+                    <button class="release-seat-btn"
+                            @onclick="ReleaseMySeatAsync"
+                            disabled="@isReleasingSeat">
+                        @(isReleasingSeat ? "Đang hủy giữ..." : "Hủy giữ ghế")
+                    </button>
+                </div>
+            }
+        </section>
+    }
+
+</div>
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private EventDto? eventItem;
+    private bool isLoadingEvent = true;
+    private bool isLoadingSeats;
+    private bool isHoldingSeat;
+    private bool isReleasingSeat;
+    private bool isRealtimeConnected;
+    private bool isInitialized;
+    private bool isDisposed;
+
+    private Guid currentUserId;
+    private Guid initializedEventId;
+
+    private List<SeatStatusChangedDto> seats = new();
+    private SeatStatusChangedDto? selectedSeat;
+    private SeatStatusChangedDto? myHeldSeat;
+
+    private string seatMessage = "Đang chuẩn bị sơ đồ ghế.";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (initializedEventId == Id)
+            return;
+
+        initializedEventId = Id;
+        isInitialized = false;
+        isRealtimeConnected = false;
+        selectedSeat = null;
+        myHeldSeat = null;
+        seats.Clear();
+
+        await LoadEventAsync();
+    }
+
+    private async Task LoadEventAsync()
+    {
+        isLoadingEvent = true;
+
+        try
+        {
+            eventItem = await EventApiService.GetEventByIdAsync(Id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Load event failed: {ex}");
+            eventItem = null;
+        }
+        finally
+        {
+            isLoadingEvent = false;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (isDisposed || isInitialized || eventItem is null)
+            return;
+
+        isInitialized = true;
+
+        try
+        {
+            var user = await AuthSessionService.GetUserAsync();
+
+            if (user is null || user.UserId == Guid.Empty)
+            {
+                NavigationManager.NavigateTo(
+                    $"/login?returnUrl={Uri.EscapeDataString($"/booking/{Id}")}");
+                return;
+            }
+
+            currentUserId = user.UserId;
+
+            SeatRealtimeService.SeatStatusChanged += OnSeatStatusChanged;
+            SeatRealtimeService.Reconnected += OnRealtimeReconnected;
+            SeatRealtimeService.ConnectionClosed += OnRealtimeConnectionClosed;
+
+            await RefreshSeatsAsync();
+            await SeatRealtimeService.ConnectAsync(Id);
+
+            isRealtimeConnected =
+                SeatRealtimeService.State == HubConnectionState.Connected;
+
+            if (isRealtimeConnected)
+                seatMessage = "Đã kết nối realtime. Trạng thái ghế sẽ được cập nhật tự động.";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Booking initialization failed: {ex}");
+            seatMessage = "Không thể kết nối hệ thống đặt vé. Hãy thử làm mới.";
+        }
+
+        if (!isDisposed)
+            await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task RefreshSeatsAsync()
+    {
+        if (isLoadingSeats || isDisposed)
+            return;
+
+        isLoadingSeats = true;
+
+        try
+        {
+            var latestSeats = await SeatBookingApiService.GetSeatsAsync(Id);
+
+            if (isDisposed)
+                return;
+
+            seats = latestSeats
+                .OrderBy(s => s.SeatCode)
+                .ToList();
+
+            if (selectedSeat is not null)
+            {
+                var latestSelected = seats.FirstOrDefault(
+                    s => s.SeatId == selectedSeat.SeatId);
+
+                if (latestSelected is null || !CanSelectSeat(latestSelected))
+                {
+                    selectedSeat = null;
+                    seatMessage = "Ghế vừa chọn không còn trống. Vui lòng chọn ghế khác.";
+                }
+                else
+                {
+                    selectedSeat = latestSelected;
+                }
+            }
+
+            if (myHeldSeat is not null)
+            {
+                var latestHeld = seats.FirstOrDefault(
+                    s => s.SeatId == myHeldSeat.SeatId);
+
+                if (latestHeld is null ||
+                    !string.Equals(latestHeld.Status, "Held",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    myHeldSeat = null;
+                }
+                else
+                {
+                    myHeldSeat = latestHeld;
+                }
+            }
+
+            if (seats.Count == 0)
+                seatMessage = "Sự kiện chưa có ghế được cấu hình.";
+            else if (selectedSeat is null && myHeldSeat is null)
+                seatMessage = $"Đã tải {seats.Count} ghế.";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Refresh seats failed: {ex}");
+            seatMessage = "Không thể tải trạng thái ghế từ BookingService.";
+        }
+        finally
+        {
+            isLoadingSeats = false;
+        }
+
+        if (!isDisposed)
+            await InvokeAsync(StateHasChanged);
+    }
+
+    private void SelectSeat(SeatStatusChangedDto seat)
+    {
+        if (!CanSelectSeat(seat) || isHoldingSeat || isReleasingSeat)
+            return;
+
+        if (selectedSeat?.SeatId == seat.SeatId)
+        {
+            selectedSeat = null;
+            seatMessage = "Bạn đã bỏ chọn ghế.";
+            return;
+        }
+
+        selectedSeat = seat;
+        seatMessage = $"Bạn đã chọn ghế {seat.SeatCode}.";
+    }
+
+    private bool CanSelectSeat(SeatStatusChangedDto seat)
+    {
+        return string.Equals(
+            seat.Status,
+            "Available",
+            StringComparison.OrdinalIgnoreCase);
+    }
+
+    private string GetSeatCssClass(SeatStatusChangedDto seat)
+    {
+        if (selectedSeat?.SeatId == seat.SeatId)
+            return "selected";
+
+        if (string.Equals(seat.Status, "Sold",
+            StringComparison.OrdinalIgnoreCase))
+            return "sold";
+
+        if (string.Equals(seat.Status, "Held",
+            StringComparison.OrdinalIgnoreCase))
+            return "held";
+
+        return "available";
+    }
+
+    private async Task HoldSelectedSeatAsync()
+    {
+        if (selectedSeat is null || isHoldingSeat || isReleasingSeat)
+            return;
+
+        if (currentUserId == Guid.Empty)
+        {
+            NavigationManager.NavigateTo(
+                $"/login?returnUrl={Uri.EscapeDataString($"/booking/{Id}")}");
+            return;
+        }
+
+        var seatId = selectedSeat.SeatId;
+        var seatCode = selectedSeat.SeatCode;
+
+        isHoldingSeat = true;
+        seatMessage = $"Đang giữ ghế {seatCode}...";
+
+        try
+        {
+            var heldSeat = await SeatBookingApiService.HoldSeatAsync(
+                Id,
+                seatId,
+                currentUserId);
+
+            myHeldSeat = heldSeat;
+            selectedSeat = null;
+
+            UpsertSeat(heldSeat);
+            seatMessage = $"Đã giữ ghế {seatCode} thành công.";
+        }
+        catch (HttpRequestException ex)
+        {
+            selectedSeat = null;
+            seatMessage = $"Không thể giữ ghế {seatCode}. Ghế có thể vừa được người khác giữ. {ex.Message}";
+
+            await RefreshSeatsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Hold seat failed: {ex}");
+            seatMessage = "Có lỗi xảy ra khi giữ ghế.";
+            await RefreshSeatsAsync();
+        }
+        finally
+        {
+            isHoldingSeat = false;
+
+            if (!isDisposed)
+                await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task ReleaseMySeatAsync()
+    {
+        if (myHeldSeat is null || isReleasingSeat || isHoldingSeat)
+            return;
+
+        var seatId = myHeldSeat.SeatId;
+        var seatCode = myHeldSeat.SeatCode;
+
+        isReleasingSeat = true;
+
+        try
+        {
+            var releasedSeat = await SeatBookingApiService.ReleaseSeatAsync(
+                seatId,
+                currentUserId);
+
+            myHeldSeat = null;
+            selectedSeat = null;
+
+            UpsertSeat(releasedSeat);
+            seatMessage = $"Đã hủy giữ ghế {seatCode}.";
+        }
+        catch (HttpRequestException ex)
+        {
+            seatMessage = $"Không thể hủy giữ ghế: {ex.Message}";
+            await RefreshSeatsAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Release seat failed: {ex}");
+            seatMessage = "Có lỗi xảy ra khi hủy giữ ghế.";
+        }
+        finally
+        {
+            isReleasingSeat = false;
+
+            if (!isDisposed)
+                await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void UpsertSeat(SeatStatusChangedDto updatedSeat)
+    {
+        var index = seats.FindIndex(s => s.SeatId == updatedSeat.SeatId);
+
+        if (index >= 0)
+            seats[index] = updatedSeat;
+        else
+            seats.Add(updatedSeat);
+
+        seats = seats.OrderBy(s => s.SeatCode).ToList();
+    }
+
+    private void OnSeatStatusChanged(SeatStatusChangedDto updatedSeat)
+    {
+        if (isDisposed || updatedSeat.EventId != Id)
+            return;
+
+        _ = InvokeAsync(() =>
+        {
+            if (isDisposed)
+                return;
+
+            UpsertSeat(updatedSeat);
+
+            if (selectedSeat?.SeatId == updatedSeat.SeatId &&
+                !CanSelectSeat(updatedSeat))
+            {
+                selectedSeat = null;
+                seatMessage = $"Ghế {updatedSeat.SeatCode} không còn trống.";
+            }
+
+            if (myHeldSeat?.SeatId == updatedSeat.SeatId &&
+                !string.Equals(updatedSeat.Status, "Held",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                myHeldSeat = null;
+                seatMessage = $"Trạng thái ghế {updatedSeat.SeatCode} đã thay đổi.";
+            }
+
+            StateHasChanged();
+        });
+    }
+
+    private void OnRealtimeReconnected()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            if (isDisposed)
+                return;
+
+            isRealtimeConnected = true;
+            seatMessage = "Đã kết nối lại. Đang đồng bộ ghế...";
+
+            await RefreshSeatsAsync();
+
+            if (!isDisposed)
+                StateHasChanged();
+        });
+    }
+
+    private void OnRealtimeConnectionClosed(Exception? exception)
+    {
+        _ = InvokeAsync(() =>
+        {
+            if (isDisposed)
+                return;
+
+            isRealtimeConnected = false;
+            seatMessage = "Mất kết nối realtime. Hệ thống sẽ thử kết nối lại khi có thể.";
+
+            StateHasChanged();
+        });
+    }
+
+    private void GoToEventDetail()
+    {
+        NavigationManager.NavigateTo($"/events/{Id}");
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (isDisposed)
+            return;
+
+        isDisposed = true;
+
+        SeatRealtimeService.SeatStatusChanged -= OnSeatStatusChanged;
+        SeatRealtimeService.Reconnected -= OnRealtimeReconnected;
+        SeatRealtimeService.ConnectionClosed -= OnRealtimeConnectionClosed;
+
+        await SeatRealtimeService.DisconnectAsync();
+    }
+}

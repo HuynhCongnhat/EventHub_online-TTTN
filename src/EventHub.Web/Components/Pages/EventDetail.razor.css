@@ -550,3 +550,131 @@
         padding: 13px;
     }
 }
+
+
+
+/* ===== Real-time seat selection ===== */
+
+.seat-selection-section {
+    margin-top: 32px;
+    padding: 24px;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.seat-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 20px 0;
+}
+
+    .seat-legend span {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+.seat-dot {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+}
+
+    .seat-dot.available {
+        background: #16a34a;
+    }
+
+    .seat-dot.held {
+        background: #f59e0b;
+    }
+
+    .seat-dot.sold {
+        background: #dc2626;
+    }
+
+    .seat-dot.selected {
+        background: #2563eb;
+    }
+
+.seat-screen {
+    max-width: 520px;
+    margin: 28px auto;
+    padding: 12px;
+    text-align: center;
+    color: #334155;
+    font-weight: 700;
+    background: #e2e8f0;
+    border-radius: 50% 50% 8px 8px;
+}
+
+.seat-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 24px 0;
+}
+
+.seat-button {
+    min-width: 76px;
+    padding: 10px 8px;
+    border: 0;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+    .seat-button.available {
+        background: #16a34a;
+        cursor: pointer;
+    }
+
+    .seat-button.held {
+        background: #f59e0b;
+        cursor: not-allowed;
+    }
+
+    .seat-button.sold {
+        background: #dc2626;
+        cursor: not-allowed;
+    }
+
+    .seat-button.selected {
+        background: #2563eb;
+        outline: 3px solid #bfdbfe;
+    }
+
+    .seat-button.available {
+        transform: translateY(-2px);
+    }
+
+.seat-button {
+    opacity: 0.85;
+}
+
+.seat-message {
+    margin: 16px 0;
+    color: #475569;
+}
+
+@media (max-width: 600px) {
+    .seat-selection-section {
+        padding: 14px;
+    }
+
+    .seat-grid {
+        gap: 7px;
+    }
+
+    .seat-button {
+        min-width: 58px;
+        padding: 9px 5px;
+        font-size: 12px;
+    }
+}

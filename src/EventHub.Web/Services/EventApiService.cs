@@ -2,6 +2,7 @@
 using EventHub.Web.Models.Category;
 using EventHub.Web.Models.Event;
 using EventHub.Web.Models.Location;
+using EventHub.Web.Models.EventArea;
 
 namespace EventHub.Web.Services;
 
@@ -73,6 +74,15 @@ public class EventApiService
             $"api/events/{id}",
             request);
 
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine($"UpdateEvent failed: {(int)response.StatusCode}" + $"{response.StatusCode}");
+
+            Console.WriteLine($"Response body: {errorBody}");
+        }
+
         return response.IsSuccessStatusCode;
     }
 
@@ -112,5 +122,41 @@ public class EventApiService
                 "api/locations");
 
         return locations ?? new List<LocationDto>();
+    }
+
+    // event area
+    public async Task<List<EventAreaDto>> GetEventAreasAsync(Guid eventId)
+    {
+        var client = CreateClient();
+
+        var result = await client.GetFromJsonAsync<List<EventAreaDto>>(
+            $"api/events/{eventId}/areas");
+
+        return result ?? new List<EventAreaDto>();
+    }
+
+    public async Task<bool> UpdateEventAreasAsync(
+        Guid eventId,
+        UpdateEventAreasRequest request)
+    {
+        var client = CreateClient();
+
+        var response = await client.PutAsJsonAsync(
+            $"api/events/{eventId}/areas",
+            request);
+
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> SaveEventAreasAsync(
+        Guid eventId,
+        List<CreateEventAreaRequest> areas)
+    {
+        var request = new UpdateEventAreasRequest
+        {
+            Areas = areas
+        };
+
+        return await UpdateEventAreasAsync(eventId, request);
     }
 }

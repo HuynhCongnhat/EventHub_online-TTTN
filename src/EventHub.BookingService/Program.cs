@@ -1,6 +1,7 @@
 using EventHub.BookingService.Application.Interfaces;
 using EventHub.BookingService.Application.Services;
 using EventHub.BookingService.Infrastructure.Data;
+using EventHub.BookingService.Hubs;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,10 +13,14 @@ builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
+builder.Services.AddScoped<SeatRealtimeNotifier>();
 
 builder.Services.AddDbContext<BookingDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("BookingDb")));
 
 builder.Services.AddScoped<ITicketInventoryService, TicketInventoryService>();
+
+builder.Services.AddScoped<ISeatBookingService, SeatBookingService>();
 
 builder.Services.AddHostedService<BookingExpirationService>();
 
@@ -53,6 +58,8 @@ app.MapGet("/weatherforecast", () =>
 app.UseHttpsRedirection();
 
 app.MapControllers();
+
+app.MapHub<BookingHub>("/hubs/bookingHub");
 
 app.Run();
 
