@@ -601,7 +601,7 @@
     private List<EventDto> events = new();
     private List<CategoryDto> categories = new();
     private List<LocationDto> locations = new();
-    private List<CreateEventAreaRequest> eventAreas = new();
+    private List<UpdateEventAreaItemRequest> eventAreas = new();
 
     private bool isLoading = true;
     private bool isSaving;
@@ -718,7 +718,7 @@
 
     private void AddEventArea()
     {
-        eventAreas.Add(new CreateEventAreaRequest
+        eventAreas.Add(new UpdateEventAreaItemRequest
         {
             Name = "",
             Capacity = 1,
@@ -726,7 +726,7 @@
         });
     }
 
-    private void RemoveEventArea(CreateEventAreaRequest area)
+    private void RemoveEventArea(UpdateEventAreaItemRequest area)
     {
         eventAreas.Remove(area);
     }
@@ -902,7 +902,7 @@
 
             editingId = id;
 
-            eventAreas = (await EventApiService.GetEventAreasAsync(id)).Select(x => new CreateEventAreaRequest
+            eventAreas = (await EventApiService.GetEventAreasAsync(id)).Select(x => new UpdateEventAreaItemRequest
             {
                 Name = x.Name,
                 Capacity = x.Capacity,

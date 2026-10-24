@@ -150,7 +150,7 @@ public class EventApiService
 
     public async Task<bool> SaveEventAreasAsync(
         Guid eventId,
-        List<CreateEventAreaRequest> areas)
+        List<UpdateEventAreaItemRequest> areas)
     {
         var request = new UpdateEventAreasRequest
         {

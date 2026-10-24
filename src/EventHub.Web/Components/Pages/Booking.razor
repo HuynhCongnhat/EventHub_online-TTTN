@@ -52,7 +52,7 @@
             <div class="seat-section-heading">
                 <div>
                     <h2>Chọn vị trí ghế</h2>
-                    <p>Chọn một ghế đang trống để bắt đầu giữ chỗ.</p>
+                    <p>Chọn một ghế đang trống để bắt đầu đặt vé.</p>
                 </div>
 
                 <button class="seat-refresh-btn"
@@ -114,7 +114,7 @@
                     <button class="booking-btn"
                             @onclick="HoldSelectedSeatAsync"
                             disabled="@(!isRealtimeConnected || isHoldingSeat)">
-                        @(isHoldingSeat ? "Đang giữ ghế..." : "Giữ ghế")
+                        @(isHoldingSeat ? "Đang giữ vé..." : "Đặt vé")
                     </button>
                 </div>
             }
@@ -130,7 +130,7 @@
                     <button class="release-seat-btn"
                             @onclick="ReleaseMySeatAsync"
                             disabled="@isReleasingSeat">
-                        @(isReleasingSeat ? "Đang hủy giữ..." : "Hủy giữ ghế")
+                        @(isReleasingSeat ? "Đang hủy đặt vé..." : "Hủy Đặt vé")
                     </button>
                 </div>
             }
@@ -226,7 +226,7 @@
                 SeatRealtimeService.State == HubConnectionState.Connected;
 
             if (isRealtimeConnected)
-                seatMessage = "Đã kết nối realtime. Trạng thái ghế sẽ được cập nhật tự động.";
+                seatMessage = "Đã kết nối realtime. Trạng thái vé sẽ được cập nhật tự động.";
         }
         catch (Exception ex)
         {
@@ -264,7 +264,7 @@
                 if (latestSelected is null || !CanSelectSeat(latestSelected))
                 {
                     selectedSeat = null;
-                    seatMessage = "Ghế vừa chọn không còn trống. Vui lòng chọn ghế khác.";
+                    seatMessage = "Vé vừa chọn không còn trống. Vui lòng chọn ghế khác.";
                 }
                 else
                 {
@@ -292,12 +292,12 @@
             if (seats.Count == 0)
                 seatMessage = "Sự kiện chưa có ghế được cấu hình.";
             else if (selectedSeat is null && myHeldSeat is null)
-                seatMessage = $"Đã tải {seats.Count} ghế.";
+                seatMessage = $"Đã tải {seats.Count} vé.";
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Refresh seats failed: {ex}");
-            seatMessage = "Không thể tải trạng thái ghế từ BookingService.";
+            seatMessage = "Không thể tải trạng thái vé.";
         }
         finally
         {
@@ -316,12 +316,12 @@
         if (selectedSeat?.SeatId == seat.SeatId)
         {
             selectedSeat = null;
-            seatMessage = "Bạn đã bỏ chọn ghế.";
+            seatMessage = "Bạn đã bỏ chọn vé.";
             return;
         }
 
         selectedSeat = seat;
-        seatMessage = $"Bạn đã chọn ghế {seat.SeatCode}.";
+        seatMessage = $"Bạn đã chọn vé {seat.SeatCode}.";
     }
 
     private bool CanSelectSeat(SeatStatusChangedDto seat)
@@ -364,7 +364,7 @@
         var seatCode = selectedSeat.SeatCode;
 
         isHoldingSeat = true;
-        seatMessage = $"Đang giữ ghế {seatCode}...";
+        seatMessage = $"Đang giữ vé {seatCode}...";
 
         try
         {
@@ -377,19 +377,19 @@
             selectedSeat = null;
 
             UpsertSeat(heldSeat);
-            seatMessage = $"Đã giữ ghế {seatCode} thành công.";
+            seatMessage = $"Đã giữ vé {seatCode} thành công.";
         }
         catch (HttpRequestException ex)
         {
             selectedSeat = null;
-            seatMessage = $"Không thể giữ ghế {seatCode}. Ghế có thể vừa được người khác giữ. {ex.Message}";
+            seatMessage = $"Không thể giữ vé {seatCode}. Vé có thể vừa được người khác giữ. {ex.Message}";
 
             await RefreshSeatsAsync();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Hold seat failed: {ex}");
-            seatMessage = "Có lỗi xảy ra khi giữ ghế.";
+            seatMessage = "Có lỗi xảy ra khi giữ vé.";
             await RefreshSeatsAsync();
         }
         finally
@@ -421,17 +421,17 @@
             selectedSeat = null;
 
             UpsertSeat(releasedSeat);
-            seatMessage = $"Đã hủy giữ ghế {seatCode}.";
+            seatMessage = $"Đã hủy giữ vé {seatCode}.";
         }
         catch (HttpRequestException ex)
         {
-            seatMessage = $"Không thể hủy giữ ghế: {ex.Message}";
+            seatMessage = $"Không thể hủy giữ vé: {ex.Message}";
             await RefreshSeatsAsync();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Release seat failed: {ex}");
-            seatMessage = "Có lỗi xảy ra khi hủy giữ ghế.";
+            seatMessage = "Có lỗi xảy ra khi hủy giữ vé.";
         }
         finally
         {
@@ -470,7 +470,7 @@
                 !CanSelectSeat(updatedSeat))
             {
                 selectedSeat = null;
-                seatMessage = $"Ghế {updatedSeat.SeatCode} không còn trống.";
+                seatMessage = $"Vé {updatedSeat.SeatCode} không còn trống.";
             }
 
             if (myHeldSeat?.SeatId == updatedSeat.SeatId &&
@@ -478,7 +478,7 @@
                     StringComparison.OrdinalIgnoreCase))
             {
                 myHeldSeat = null;
-                seatMessage = $"Trạng thái ghế {updatedSeat.SeatCode} đã thay đổi.";
+                seatMessage = $"Trạng thái Vé {updatedSeat.SeatCode} đã thay đổi.";
             }
 
             StateHasChanged();

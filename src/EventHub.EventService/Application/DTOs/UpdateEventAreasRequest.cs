@@ -2,5 +2,5 @@
 
 public class UpdateEventAreasRequest
 {
-    public List<CreateEventAreaRequest> Areas { get; set; } = new();
+    public List<UpdateEventAreaItemRequest> Areas { get; set; } = new();
 }

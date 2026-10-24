@@ -91,26 +91,85 @@ public class EventAreaController : ControllerBase
             });
         }
 
-        var areas = request.Areas.Select(x => new EventArea
-        {
-            Id = Guid.NewGuid(),
-            EventId = eventId,
-            Name = x.Name.Trim(),
-            Capacity = x.Capacity,
-            Description = x.Description?.Trim()
-        }).ToList();
+        var existingAreas = await _eventAreaRepository.GetByEventIdAsync(
+    eventId, cancellationToken);
 
-        await _eventAreaRepository.DeleteByEventIdAsync(
-            eventId, cancellationToken);
+        var existingById = existingAreas.ToDictionary(x => x.Id);
+        var requestedIds = request.Areas
+            .Where(x => x.Id.HasValue)
+            .Select(x => x.Id!.Value)
+            .ToList();
+
+        // Từ chối ID bị trùng trong request.
+        if (requestedIds.Distinct().Count() != requestedIds.Count)
+        {
+            return BadRequest(new
+            {
+                message = "ID khu vực không được trùng nhau."
+            });
+        }
+
+        // Từ chối ID không thuộc sự kiện hiện tại hoặc không tồn tại.
+        if (requestedIds.Any(id => !existingById.ContainsKey(id)))
+        {
+            return BadRequest(new
+            {
+                message = "Có khu vực không tồn tại hoặc không thuộc sự kiện này."
+            });
+        }
+
+        var areasToUpdate = new List<EventArea>();
+        var areasToAdd = new List<EventArea>();
+
+        foreach (var item in request.Areas)
+        {
+            if (item.Id.HasValue)
+            {
+                var area = existingById[item.Id.Value];
+
+                area.Name = item.Name.Trim();
+                area.Capacity = item.Capacity;
+                area.Description = item.Description?.Trim();
+
+                areasToUpdate.Add(area);
+            }
+            else
+            {
+                areasToAdd.Add(new EventArea
+                {
+                    Id = Guid.NewGuid(),
+                    EventId = eventId,
+                    Name = item.Name.Trim(),
+                    Capacity = item.Capacity,
+                    Description = item.Description?.Trim()
+                });
+            }
+        }
+
+        // Chỉ xóa những khu vực cũ không còn được gửi lên.
+        var requestedIdSet = requestedIds.ToHashSet();
+        var idsToDelete = existingAreas
+            .Where(x => !requestedIdSet.Contains(x.Id))
+            .Select(x => x.Id)
+            .ToList();
+
+        await _eventAreaRepository.UpdateRangeAsync(
+            areasToUpdate, cancellationToken);
 
         await _eventAreaRepository.AddRangeAsync(
-            areas, cancellationToken);
+            areasToAdd, cancellationToken);
+
+        await _eventAreaRepository.DeleteByIdsAsync(
+            idsToDelete, cancellationToken);
+
+        var savedAreas = await _eventAreaRepository.GetByEventIdAsync(
+            eventId, cancellationToken);
 
         return Ok(new
         {
             eventId,
-            totalCapacity,
-            areas = areas.Select(x => new EventAreaDto
+            totalCapacity = savedAreas.Sum(x => (long)x.Capacity),
+            areas = savedAreas.Select(x => new EventAreaDto
             {
                 Id = x.Id,
                 EventId = x.EventId,

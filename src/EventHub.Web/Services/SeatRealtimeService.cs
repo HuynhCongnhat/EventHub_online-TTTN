@@ -96,19 +96,20 @@ public sealed class SeatRealtimeService : IAsyncDisposable
 
     private string GetHubUrl()
     {
-        // Khi Web chạy trong Docker, kết nối từ server Web qua Gateway.
-        // Khi chạy Web trực tiếp trên máy phát triển, dùng Gateway localhost.
-        var baseUri = _navigationManager.BaseUri;
+        // Web chạy trong Docker: gọi Gateway qua mạng nội bộ Docker.
+        var runningInContainer =
+            string.Equals(
+                Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER"),
+                "true",
+                StringComparison.OrdinalIgnoreCase);
 
-        if (Uri.TryCreate(baseUri, UriKind.Absolute, out var uri) &&
-            (uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase) ||
-             uri.Host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase)) &&
-            uri.Port == 5086)
+        if (runningInContainer)
         {
-            return "http://localhost:5000/hubs/bookingHub";
+            return "http://apigateway:8080/hubs/bookingHub";
         }
 
-        return "http://apigateway:8080/hubs/bookingHub";
+        // Web chạy trực tiếp trên máy Windows.
+        return "http://localhost:5000/hubs/bookingHub";
     }
 
     private async Task DisposeConnectionAsync()

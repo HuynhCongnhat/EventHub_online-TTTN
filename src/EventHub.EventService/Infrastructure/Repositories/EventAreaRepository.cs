@@ -42,6 +42,41 @@ public class EventAreaRepository : IEventAreaRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task UpdateRangeAsync(
+    IEnumerable<EventArea> entities,
+    CancellationToken cancellationToken = default)
+    {
+        var items = entities.ToList();
+
+        if (items.Count == 0)
+            return;
+
+        _context.EventAreas.UpdateRange(items);
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task DeleteByIdsAsync(
+        IEnumerable<Guid> ids,
+        CancellationToken cancellationToken = default)
+    {
+        var idList = ids.Distinct().ToList();
+
+        if (idList.Count == 0)
+            return;
+
+        var areas = await _context.EventAreas
+            .Where(x => idList.Contains(x.Id))
+            .ToListAsync(cancellationToken);
+
+        if (areas.Count == 0)
+            return;
+
+        _context.EventAreas.RemoveRange(areas);
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task DeleteByEventIdAsync(
         Guid eventId,
         CancellationToken cancellationToken = default)

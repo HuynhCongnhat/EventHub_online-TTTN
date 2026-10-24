@@ -19,4 +19,12 @@ public interface IEventAreaRepository
     Task DeleteByEventIdAsync(
         Guid eventId,
         CancellationToken cancellationToken = default);
+
+    Task UpdateRangeAsync(
+        IEnumerable<EventArea> entities,
+        CancellationToken cancellationToken = default);
+
+    Task DeleteByIdsAsync(
+        IEnumerable<Guid> ids,
+        CancellationToken cancellationToken = default);
 }
